@@ -1,0 +1,1515 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<style>html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}html{-webkit-text-size-adjust:100%}</style>
+<title>Lean的减脂旅途🌍✈️</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Lean的减脂旅途">
+<meta name="theme-color" content="#f7f1e6">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Outfit:wght@500;700;800&display=swap">
+<style>
+/* Layout: phone-first single column — sticky day strip, summary ring, stacked meal "plates", fixed bottom tab bar */
+:root {
+  --bg: #f7f1e6;
+  --card: #fffdf8;
+  --ink: #3a1520;
+  --muted: #86676d;
+  --line: #eadccf;
+  --accent: #7b1e3a;
+  --leaf: #4f8f4a;
+  --protein: #2f7a5c;
+  --chip: #e3f0d8;
+  --shadow: 0 6px 20px rgba(123, 30, 58, .10);
+  --display: "ZCOOL KuaiLe", "PingFang SC", "Hiragino Sans GB", sans-serif;
+  --body: -apple-system, "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  --num: "Outfit", -apple-system, "Helvetica Neue", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1f1416; --card: #2b1c21; --ink: #f6ecdf; --muted: #c4a7ac; --line: #402a31;
+    --accent: #e07a96; --leaf: #a3d69c; --protein: #8fd6b6; --chip: #2f3b2b;
+    --shadow: 0 6px 20px rgba(0,0,0,.35); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1f1416; --card: #2b1c21; --ink: #f6ecdf; --muted: #c4a7ac; --line: #402a31;
+  --accent: #e07a96; --leaf: #a3d69c; --protein: #8fd6b6; --chip: #2f3b2b;
+  --shadow: 0 6px 20px rgba(0,0,0,.35); color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55;
+  -webkit-tap-highlight-color: transparent;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.wrap {
+  max-width: 560px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 12px calc(96px + env(safe-area-inset-bottom, 0px));
+}
+header.top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; padding-top: 6px; }
+h1 { font-family: var(--body); font-weight: 800; font-size: 25px; line-height: 1.25; margin: 0; letter-spacing: .5px; color: var(--accent); }
+.sub { color: var(--muted); font-size: 13px; }
+h2 { font-family: var(--display); font-weight: 400; font-size: 22px; margin: 0; text-wrap: balance; }
+.num { font-family: var(--num); font-variant-numeric: tabular-nums; }
+
+/* day strip */
+.days {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg);
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; padding-block: 12px 10px; margin-top: 4px;
+}
+.day {
+  border: 0; background: var(--card); color: var(--ink); border-radius: 14px; padding: 8px 0 6px;
+  font: inherit; cursor: pointer; display: grid; justify-items: center; gap: 2px; box-shadow: var(--shadow);
+}
+.day b { font-family: var(--display); font-weight: 400; font-size: 18px; line-height: 1; }
+.day i { font-style: normal; font-size: 13px; line-height: 1; height: 14px; }
+.day.on { background: var(--accent); color: #fffdf8; }
+.day.today:not(.on) { outline: 2px solid var(--accent); outline-offset: -2px; }
+.day:focus-visible, .tab:focus-visible, .meal-head:focus-visible, .done:focus-visible { outline: 3px solid var(--protein); outline-offset: 2px; }
+
+/* summary */
+.summary { display: grid; grid-template-columns: 118px 1fr; gap: 16px; align-items: center; background: var(--card); border-radius: 22px; padding: 16px; box-shadow: var(--shadow); }
+.ring { position: relative; width: 118px; height: 118px; }
+.ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring .c { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.ring .c strong { font-family: var(--num); font-size: 26px; font-weight: 800; line-height: 1; }
+.ring .c span { font-size: 11px; color: var(--muted); }
+.sum-info { min-width: 0; display: grid; gap: 6px; }
+.badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; width: max-content; max-width: 100%; }
+.badge.rest { background: color-mix(in srgb, var(--leaf) 18%, transparent); color: var(--leaf); }
+.badge.train { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent); }
+.badge.hot { background: color-mix(in srgb, #ff3d6e 18%, transparent); color: #ff3d6e; }
+.stats { display: flex; gap: 16px; flex-wrap: wrap; }
+.stat { display: grid; }
+.stat .num { font-size: 20px; font-weight: 700; }
+.stat small { color: var(--muted); font-size: 11px; letter-spacing: .5px; }
+.p { color: var(--protein); }
+.note { margin: 12px 0 0; font-size: 13.5px; color: var(--muted); background: var(--chip); border-radius: 14px; padding: 10px 12px; }
+
+/* meals */
+.meals { display: grid; gap: 16px; margin-top: 18px; }
+.meal { background: var(--card); border-radius: 22px; overflow: hidden; box-shadow: var(--shadow); }
+.meal.ate { opacity: .62; }
+.meal-head { all: unset; display: block; width: 100%; cursor: pointer; }
+.photo { position: relative; aspect-ratio: 16 / 10; max-width: 100%; overflow: hidden; display: grid; place-items: center; }
+.photo .cloth { position: absolute; inset: 0; }
+.photo .plate {
+  position: relative; width: 62%; aspect-ratio: 1; border-radius: 50%;
+  background: radial-gradient(circle at 50% 45%, #ffffff 0 58%, #f4ece4 59% 66%, #ffffff 67% 100%);
+  box-shadow: 0 18px 30px rgba(60, 20, 0, .28), inset 0 -6px 12px rgba(0,0,0,.06);
+}
+.photo .food { position: absolute; font-size: clamp(34px, 11vw, 58px); line-height: 1; filter: drop-shadow(0 6px 6px rgba(0,0,0,.18)); }
+.photo .real { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.photo .herb { position: absolute; font-size: 18px; opacity: .9; }
+.slot {
+  position: absolute; left: 12px; top: 12px; background: rgba(255,255,255,.92); color: #2b1d14;
+  font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px;
+}
+.slot.extra { background: #2b1d14; color: #fff; }
+.kc {
+  position: absolute; right: 12px; bottom: 12px; background: rgba(43,29,20,.82); color: #fff;
+  font-family: var(--num); font-size: 13px; padding: 5px 10px; border-radius: 999px; font-variant-numeric: tabular-nums;
+}
+.meal-title { padding: 14px 16px 4px; display: grid; gap: 2px; }
+.meal-title h3 { margin: 0; font-size: 17px; line-height: 1.35; text-wrap: balance; }
+.meal-meta { display: flex; gap: 12px; flex-wrap: wrap; color: var(--muted); font-size: 12.5px; }
+.meal-meta .p { font-weight: 700; }
+.more { font-size: 12.5px; color: var(--accent); font-weight: 600; padding: 2px 16px 14px; }
+.detail { padding: 0 16px 16px; display: grid; gap: 14px; }
+.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.tbl th { text-align: left; font-weight: 600; color: var(--muted); font-size: 11.5px; letter-spacing: .5px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.tbl td { padding: 7px 0; border-bottom: 1px dashed var(--line); vertical-align: top; }
+.tbl td.r, .tbl th.r { text-align: right; white-space: nowrap; padding-left: 8px; font-family: var(--num); font-variant-numeric: tabular-nums; }
+.tbl td small { display: block; color: var(--muted); font-size: 11px; }
+.tbl tfoot td { font-weight: 700; border-bottom: 0; }
+.steps-h { font-family: var(--display); font-size: 17px; margin: 0; display: flex; justify-content: space-between; align-items: baseline; }
+.steps-h span { font-family: var(--body); font-size: 12px; color: var(--muted); }
+ol.steps { margin: 0; padding: 0; list-style: none; counter-reset: s; display: grid; gap: 8px; }
+ol.steps li { counter-increment: s; display: grid; grid-template-columns: 26px 1fr; gap: 8px; font-size: 14px; }
+ol.steps li::before {
+  content: counter(s); width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: #fff;
+  font-family: var(--num); font-weight: 700; font-size: 13px; display: grid; place-items: center; margin-top: 1px;
+}
+.done {
+  border: 0; font: inherit; font-weight: 700; padding: 12px; border-radius: 14px; cursor: pointer;
+  background: var(--chip); color: var(--ink);
+}
+.meal.ate .done { background: var(--leaf); color: #fff; }
+
+/* other tabs */
+.panel { display: grid; gap: 14px; margin-top: 14px; }
+.box { background: var(--card); border-radius: 20px; padding: 16px; box-shadow: var(--shadow); }
+.box h2 { margin-bottom: 8px; }
+.box p { margin: 0 0 8px; }
+.shop { display: grid; gap: 0; }
+.shop label { display: grid; grid-template-columns: 28px 30px 1fr auto; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px dashed var(--line); cursor: pointer; }
+.shop label:last-child { border-bottom: 0; }
+.shop input { width: 20px; height: 20px; accent-color: var(--leaf); }
+.shop .e { font-size: 22px; }
+.shop .q { font-family: var(--num); font-weight: 700; font-variant-numeric: tabular-nums; }
+.shop .h { color: var(--muted); font-size: 12px; display: block; }
+.shop input:checked ~ span { text-decoration: line-through; opacity: .5; }
+ul.tips { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+.week-tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.week-tbl td, .week-tbl th { padding: 8px 4px; border-bottom: 1px dashed var(--line); text-align: left; }
+.week-tbl .r { text-align: right; font-family: var(--num); font-variant-numeric: tabular-nums; }
+
+/* bilingual */
+.en { display: block; font-family: var(--body); font-size: .74em; font-weight: 400; color: var(--muted); letter-spacing: .2px; line-height: 1.4; }
+.en-i { font-family: var(--body); font-size: .72em; font-weight: 400; color: var(--muted); }
+h1 .en, h2 .en { font-size: 13px; margin-top: 2px; }
+.slot .en-i, .tab .en-i { color: inherit; opacity: .75; }
+.tab .en-i { display: block; font-size: 10px; line-height: 1.1; }
+.day small { font-size: 9.5px; line-height: 1; opacity: .8; }
+
+/* log + body tracking */
+.warn { white-space: pre-line; background: var(--chip); border-radius: 14px; padding: 10px 12px; font-size: 13px; color: var(--muted); }
+.datenav { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: 8px; }
+.datenav button { border: 0; background: var(--card); color: var(--ink); font-size: 20px; height: 40px; border-radius: 12px; cursor: pointer; box-shadow: var(--shadow); }
+.datenav button:disabled { opacity: .3; cursor: default; }
+.datenav h2 { text-align: center; }
+.bar { display: grid; gap: 4px; }
+.bar-top { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; }
+.bar-top .num { font-weight: 700; }
+.track { height: 12px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.fill { height: 100%; border-radius: 999px; background: var(--accent); }
+.fill.p { background: var(--protein); }
+.fill.over { background: #e8453c; }
+.pills { display: flex; gap: 8px; flex-wrap: wrap; }
+.pill { font-size: 12.5px; font-weight: 700; padding: 5px 10px; border-radius: 999px; }
+.pill.ok { background: color-mix(in srgb, var(--leaf) 18%, transparent); color: var(--leaf); }
+.pill.low { background: color-mix(in srgb, #f0a020 22%, transparent); color: #b97400; }
+.pill.high { background: color-mix(in srgb, #e8453c 18%, transparent); color: #e8453c; }
+.field { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+.field input, .field select, .field textarea {
+  font: inherit; font-size: 16px; color: var(--ink); background: var(--bg); border: 1px solid var(--line);
+  border-radius: 12px; padding: 10px 12px; width: 100%; min-width: 0;
+}
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn { border: 0; font: inherit; font-weight: 700; padding: 13px 16px; border-radius: 14px; cursor: pointer; background: var(--accent); color: #fff; width: 100%; }
+.btn.ghost { background: var(--chip); color: var(--ink); }
+.btn:disabled { opacity: .5; cursor: default; }
+.btn:focus-visible, .x:focus-visible, .chipbtn:focus-visible { outline: 3px solid var(--protein); outline-offset: 2px; }
+.pick {
+  display: grid; place-items: center; gap: 4px; border: 2px dashed var(--line); border-radius: 18px; padding: 18px 12px;
+  text-align: center; cursor: pointer; color: var(--muted); font-size: 13px; background: var(--bg);
+}
+.pick b { font-size: 34px; line-height: 1; }
+.pick img { max-height: 220px; border-radius: 12px; }
+.pick input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.pick:focus-within { outline: 3px solid var(--protein); outline-offset: 2px; }
+.stack { display: grid; gap: 12px; }
+.thinking { color: var(--muted); font-size: 13.5px; }
+.entry { display: grid; grid-template-columns: 56px 1fr auto; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px dashed var(--line); }
+.entry:last-child { border-bottom: 0; }
+.entry .th { width: 56px; height: 56px; border-radius: 12px; object-fit: cover; display: grid; place-items: center; font-size: 26px; background: var(--chip); }
+.entry .nm { min-width: 0; }
+.entry .nm b { display: block; font-size: 14px; line-height: 1.35; }
+.entry .nm small { color: var(--muted); font-size: 12px; }
+.entry .kc2 { text-align: right; font-family: var(--num); font-variant-numeric: tabular-nums; font-size: 14px; font-weight: 700; }
+.entry .kc2 small { display: block; color: var(--protein); font-size: 12px; }
+.x { border: 0; background: none; color: var(--muted); font: inherit; font-size: 12px; cursor: pointer; padding: 2px 0; }
+.x.sure { color: #e8453c; font-weight: 700; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chipbtn { border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: inherit; font-size: 13px; padding: 7px 12px; border-radius: 999px; cursor: pointer; }
+.ai { white-space: pre-line; font-size: 14px; background: var(--chip); border-radius: 14px; padding: 12px; }
+.shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.shots .pick { padding: 10px 6px; min-height: 120px; }
+.shots .pick img { max-height: 130px; }
+.gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.gallery img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 10px; }
+.goal-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.goal-chips span { font-size: 12.5px; font-weight: 700; padding: 5px 10px; border-radius: 999px; background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }
+.workout { display: grid; gap: 2px; padding: 10px 0; border-bottom: 1px dashed var(--line); }
+.workout:last-child { border-bottom: 0; }
+.workout b { font-size: 14.5px; }
+.workout span, .workout b, .bi { white-space: pre-line; }
+.workout span { font-size: 13px; color: var(--muted); }
+.workout .how { color: var(--accent); font-weight: 700; }
+.tblwrap { overflow-x: auto; }
+.up { color: #e8453c; } .down { color: var(--leaf); }
+
+/* bottom tabs */
+nav.tabs {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--card);
+  border-top: 1px solid var(--line);
+  padding: 8px max(16px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px;
+}
+.tab { border: 0; background: none; font: inherit; color: var(--muted); display: grid; justify-items: center; gap: 2px; padding: 4px; cursor: pointer; border-radius: 12px; }
+.tab .ti { font-size: 22px; line-height: 1; }
+.tab span:last-child { font-size: 11.5px; font-weight: 600; }
+.tab.on { color: var(--accent); background: var(--chip); }
+@media (prefers-reduced-motion: no-preference) {
+  .meal { transition: opacity .25s; }
+  .detail { animation: drop .25s ease-out; }
+  @keyframes drop { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+}
+@media (max-width: 360px) { .summary { grid-template-columns: 96px 1fr; } .ring { width: 96px; height: 96px; } .ring .c strong { font-size: 21px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>Lean的减脂旅途🌍✈️</h1>
+    <span class="sub" id="dateline"></span>
+  </header>
+  <div id="view-menu">
+    <div class="days" id="days" role="tablist" aria-label="选择星期"></div>
+    <section class="summary" id="summary"></section>
+    <p class="note" id="note"></p>
+    <div class="meals" id="meals"></div>
+  </div>
+  <div id="view-log" class="panel" hidden>
+    <p class="warn" id="log-off" hidden>这台手机现在不能保存资料（可能开了无痕浏览）。菜单照常可以看。<span class="en">This phone can't save data right now (private browsing?). The menu still works.</span></p>
+    <div class="datenav">
+      <button id="log-prev" aria-label="前一天">‹</button>
+      <h2 id="log-date"></h2>
+      <button id="log-next" aria-label="后一天">›</button>
+    </div>
+    <section class="box stack" id="log-report"></section>
+    <section class="box stack" id="log-add">
+      <h2>记录一餐<span class="en">Log a meal</span></h2>
+      <label class="pick" id="meal-pick" for="meal-file">
+        <b>📷</b><span>拍张照留念（可不拍）<br>Add a photo (optional)</span>
+        <input type="file" id="meal-file" accept="image/*">
+      </label>
+      <label class="field" for="meal-slot">哪一餐 Which meal
+        <select id="meal-slot"><option value="早餐">早餐 Breakfast</option><option value="午餐">午餐 Lunch</option><option value="晚餐">晚餐 Dinner</option><option value="加餐">加餐 Snack</option></select>
+      </label>
+      <div class="row2">
+        <label class="field" for="add-food">食物 Food<select id="add-food"></select></label>
+        <label class="field" for="add-qty"><span id="add-unit">克数 grams</span><input id="add-qty" type="number" inputmode="decimal" value="100" min="0"></label>
+      </div>
+      <button class="btn ghost" id="add-item">＋ 加进这一餐 · Add</button>
+      <div id="meal-draft"><p class="sub">选食物和份量，按「加进这一餐」。可以加很多样。<br>Pick a food and amount, then tap Add. Add as many as you like.</p></div>
+      <button class="btn" id="meal-save2" disabled>记下这一餐 · Save meal</button>
+      <div id="meal-result"></div>
+    </section>
+    <section class="box stack">
+      <h2>按菜单吃的，一键记录<span class="en">Ate the planned meal? Log it in one tap</span></h2>
+      <div class="chips" id="log-plan"></div>
+    </section>
+    <section class="box stack">
+      <h2>这一天吃了什么<span class="en">What I ate</span></h2>
+      <div id="log-list"></div>
+    </section>
+  </div>
+  <div id="view-body" class="panel" hidden>
+    <p class="warn" id="body-off" hidden>这台手机现在不能保存资料（可能开了无痕浏览）。<span class="en">This phone can't save data right now (private browsing?).</span></p>
+    <section class="box stack">
+      <h2>我的目标<span class="en">My goals</span></h2>
+      <div class="goal-chips"><span>减脂 Fat loss</span><span>瘦腰腹 Slim waist</span><span>手臂紧致 Toned arms</span><span>提臀 Lifted glutes</span></div>
+      <p class="sub">建议每个星期同一天早上、空腹、穿贴身运动服，在同一个位置和光线下拍正面、侧面、背面三张照片。照片只存在你的 iPhone 里，不会上传。<br>Once a week, same morning, before eating, in fitted sportswear, same spot and light: front, side and back photos. Photos stay on your iPhone and are never uploaded.</p>
+    </section>
+    <section class="box stack" id="body-form">
+      <h2>本周记录<span class="en">This week's check-in</span></h2>
+      <div class="shots">
+        <label class="pick" for="shot-front"><b>🧍</b><span>正面 Front</span><input type="file" id="shot-front" accept="image/*" data-shot="0"></label>
+        <label class="pick" for="shot-side"><b>🚶</b><span>侧面 Side</span><input type="file" id="shot-side" accept="image/*" data-shot="1"></label>
+        <label class="pick" for="shot-back"><b>🔙</b><span>背面 Back</span><input type="file" id="shot-back" accept="image/*" data-shot="2"></label>
+      </div>
+      <div class="row2">
+        <label class="field" for="m-weight">体重 Weight（kg）<input id="m-weight" type="number" inputmode="decimal" step="0.1" placeholder="62.5"></label>
+        <label class="field" for="m-waist">腰围 Waist（cm）<input id="m-waist" type="number" inputmode="decimal" step="0.5" placeholder="肚脐 at navel"></label>
+        <label class="field" for="m-hip">臀围 Hip（cm）<input id="m-hip" type="number" inputmode="decimal" step="0.5" placeholder="最宽处 widest"></label>
+        <label class="field" for="m-hwaist">高腰围 High waist（cm）<input id="m-hwaist" type="number" inputmode="decimal" step="0.5" placeholder="最细处 narrowest"></label>
+      </div>
+      <button class="btn" id="body-go">保存本周记录 · Save this week</button>
+      <div id="body-status"></div>
+    </section>
+    <section class="box stack" id="body-latest" hidden></section>
+    <section class="box stack" id="body-history" hidden></section>
+    <section class="box stack" id="body-compare" hidden></section>
+    <section class="box stack" id="body-workouts"></section>
+  </div>
+  <div id="view-shop" class="panel" hidden></div>
+  <div id="view-guide" class="panel" hidden></div>
+</div>
+
+<nav class="tabs" aria-label="页面">
+  <button class="tab on" data-view="menu" id="tab-menu"><span class="ti">🍽️</span><span>菜单<span class="en-i"> Menu</span></span></button>
+  <button class="tab" data-view="log" id="tab-log"><span class="ti">📷</span><span>记录<span class="en-i"> Log</span></span></button>
+  <button class="tab" data-view="body" id="tab-body"><span class="ti">📏</span><span>身材<span class="en-i"> Body</span></span></button>
+  <button class="tab" data-view="shop" id="tab-shop"><span class="ti">🛒</span><span>购物<span class="en-i"> Shop</span></span></button>
+  <button class="tab" data-view="guide" id="tab-guide"><span class="ti">📖</span><span>指南<span class="en-i"> Guide</span></span></button>
+</nav>
+
+<script>
+// 每100克：[名称, kcal, 蛋白质g, emoji, 说明]
+const FOODS = {
+  sp:    ["番薯", 86, 1.6, "🍠", "蒸/烤，带皮称重"],
+  pot:   ["马铃薯", 77, 2.0, "🥔", "蒸/烤，带皮称重"],
+  corn:  ["玉米 Jagung", 96, 3.4, "🌽", "可食部分（1条约150g）"],
+  chk:   ["鸡胸肉", 120, 23, "🍗", "生重"],
+  tofu:  ["白豆腐", 80, 8.5, "⬜", ""],
+  prawn: ["虾仁", 85, 20, "🦐", "生重，去壳"],
+  sard:  ["沙丁鱼罐头（茄汁）", 160, 17, "🐟", "连少量酱汁"],
+  egg:   ["鸡蛋", 143, 12.6, "🥚", "1颗约50g"],
+  yog:   ["希腊酸奶（原味无糖）", 73, 10, "🥛", "低脂款"],
+  om:    ["OM 蛋白粉", 400, 80, "💪", "1勺约30g，请以包装为准"],
+  soup:  ["番茄萝卜浓汤", 36, 1.0, "🍅", "做法见「浓汤」"],
+  oil:   ["橄榄油", 884, 0, "🫒", "1茶匙≈5g"],
+};
+
+// 每道菜的配色（用于“照片”背景）与做法
+const DISHES = {
+  eggSpYog: {
+    name: "水煮蛋 · 蒸番薯 · 希腊酸奶",
+    colors: ["#ff9a3c", "#ffd56b"], art: ["🥚", "🍠", "🥛"],
+    time: "15 分钟",
+    steps: [
+      "番薯洗净带皮，切块，水滚后大火蒸 15 分钟，筷子能穿透即可。",
+      "同时冷水下鸡蛋，水滚后计时 8 分钟（全熟）或 6 分钟（溏心），捞起泡冷水剥壳。",
+      "希腊酸奶直接盛碗，可撒少许肉桂粉，不加糖。",
+    ],
+  },
+  cornOmelette: {
+    name: "玉米葱香蛋饼 + 希腊酸奶",
+    colors: ["#ffcf3c", "#ff8f3c"], art: ["🌽", "🍳", "🥛"],
+    time: "12 分钟",
+    steps: [
+      "玉米切下玉米粒（或用煮好的玉米刨粒）。",
+      "鸡蛋打散，加盐、胡椒和玉米粒拌匀。",
+      "不粘锅抹薄油，小火倒入蛋液，盖锅 3 分钟至凝固，对折起锅。",
+      "配一碗原味希腊酸奶。",
+    ],
+  },
+  proteinBowl: {
+    name: "番薯蛋白酸奶碗",
+    colors: ["#c86bff", "#ff8fb8"], art: ["🍠", "🥛", "💪"],
+    time: "5 分钟（番薯可前一晚蒸好）",
+    steps: [
+      "希腊酸奶加入 OM 蛋白粉，搅到顺滑（太稠可加 1 汤匙水）。",
+      "蒸好的番薯切小丁，铺在酸奶上。",
+      "冷吃即可，像吃甜品一样。",
+    ],
+  },
+  chickenPotSoup: {
+    name: "香煎鸡胸 · 烤马铃薯 · 番茄浓汤",
+    colors: ["#ff6b3c", "#ffb03c"], art: ["🍗", "🥔", "🍅"],
+    time: "30 分钟",
+    steps: [
+      "鸡胸肉横切成两片薄片，用盐、黑胡椒、蒜粉、少许酱青腌 10 分钟。",
+      "马铃薯切块，微波 4 分钟或蒸 12 分钟，再放气炸锅 200°C 8 分钟至金黄。",
+      "平底锅抹油，中火每面煎 3–4 分钟，静置 3 分钟再切。",
+      "加热一碗番茄萝卜浓汤一起吃。",
+    ],
+  },
+  garlicPrawnTofu: {
+    name: "蒜香虾仁焖白豆腐",
+    colors: ["#ff7a6b", "#ffd0a0"], art: ["🦐", "⬜", "🧄"],
+    time: "15 分钟",
+    steps: [
+      "虾仁用少许盐、胡椒抓匀；白豆腐切方块。",
+      "锅里放油，小火爆香 3 瓣蒜末。",
+      "下虾仁炒到变红，盛起。",
+      "原锅放豆腐和半碗水，加少许蚝油焖 3 分钟，倒回虾仁拌匀，撒葱花。",
+      "配蒸番薯或玉米。",
+    ],
+  },
+  sardineSoup: {
+    name: "沙丁鱼番茄浓汤锅",
+    colors: ["#e8453c", "#ff9a6b"], art: ["🐟", "🍅", "🥔"],
+    time: "10 分钟",
+    steps: [
+      "番茄萝卜浓汤倒入小锅煮滚。",
+      "放入沙丁鱼（连酱汁），用勺子轻轻压成大块，小火煮 3 分钟。",
+      "加黑胡椒，喜欢辣可加辣椒碎。",
+      "配蒸好的马铃薯或番薯一起吃，汤汁拌薯块很香。",
+    ],
+  },
+  steamedEggTofuChicken: {
+    name: "鸡肉豆腐蒸水蛋",
+    colors: ["#ffd23c", "#9be37a"], art: ["🥚", "⬜", "🍗"],
+    time: "20 分钟",
+    steps: [
+      "鸡胸肉剁碎（或切小丁），加少许盐、酱青、胡椒拌匀。",
+      "白豆腐切片铺盘底，鸡肉碎放在豆腐上。",
+      "鸡蛋打散，加 1.5 倍温水和少许盐，过筛倒入盘中。",
+      "盖上盘子，中小火蒸 12–15 分钟，淋一点酱青、撒葱花。",
+    ],
+  },
+  chickenSpBowl: {
+    name: "鸡胸番薯能量碗",
+    colors: ["#ff8a3c", "#7ad37a"], art: ["🍗", "🍠", "🥚"],
+    time: "25 分钟",
+    steps: [
+      "鸡胸肉切块，用酱青、蒜末、黑胡椒腌 10 分钟。",
+      "番薯切丁，气炸锅 190°C 15 分钟（或蒸 12 分钟）。",
+      "平底锅抹油，大火炒鸡块 5–6 分钟至熟透。",
+      "鸡蛋煮成溏心蛋对半切，和鸡块、番薯丁一起装碗。",
+    ],
+  },
+  prawnCornSoup: {
+    name: "白灼虾 · 甜玉米 · 番茄浓汤",
+    colors: ["#ff5f6b", "#ffcf3c"], art: ["🦐", "🌽", "🍅"],
+    time: "15 分钟",
+    steps: [
+      "玉米切段，水滚后煮 8 分钟。",
+      "另一锅水加姜片煮滚，下虾（生重称好）煮 2–3 分钟变红卷起即捞。",
+      "蘸料：酱青 + 蒜末 + 辣椒片。",
+      "配一碗热的番茄萝卜浓汤。",
+    ],
+  },
+  sardinePotCake: {
+    name: "沙丁鱼马铃薯煎饼",
+    colors: ["#ff9a3c", "#e8453c"], art: ["🐟", "🥔", "🍳"],
+    time: "25 分钟",
+    steps: [
+      "马铃薯蒸熟压成泥。",
+      "沙丁鱼沥一下酱汁，去中间大骨，和薯泥、1 颗蛋、葱花、黑胡椒拌匀。",
+      "捏成 4 个小饼。",
+      "不粘锅抹薄油，中小火每面煎 3 分钟至金黄。也可气炸 200°C 10 分钟。",
+    ],
+  },
+  soupEggPrawn: {
+    name: "番茄浓汤卧蛋虾仁 + 马铃薯",
+    colors: ["#e8453c", "#ffd23c"], art: ["🍅", "🥚", "🦐"],
+    time: "15 分钟",
+    steps: [
+      "番茄萝卜浓汤倒入平底锅煮滚。",
+      "用勺子压出 2 个小窝，各打入 1 颗蛋，盖锅小火 4 分钟。",
+      "放入虾仁，再煮 2 分钟到虾变红。",
+      "撒黑胡椒，配蒸马铃薯。",
+    ],
+  },
+  tofuChickenGarlic: {
+    name: "蒜蓉蒸豆腐鸡胸片",
+    colors: ["#9be37a", "#ffd56b"], art: ["⬜", "🍗", "🧄"],
+    time: "20 分钟",
+    steps: [
+      "鸡胸肉逆纹切薄片，用酱青、少许玉米粉、胡椒抓匀。",
+      "白豆腐切厚片铺盘，鸡片铺在上面。",
+      "蒜末用少许油小火炒香成蒜蓉，铺在鸡片上。",
+      "大火蒸 10 分钟，淋酱青、撒葱花。",
+    ],
+  },
+  cornSteam: {
+    name: "蒸甜玉米",
+    colors: ["#ffe03c", "#9be37a"], art: ["🌽"],
+    time: "10 分钟",
+    steps: ["玉米整条或切段，水滚后蒸/煮 8–10 分钟。训练前 45–60 分钟吃，好消化、给能量。"],
+  },
+  omShake: {
+    name: "OM 蛋白饮",
+    colors: ["#6b8fff", "#c86bff"], art: ["💪", "🥤"],
+    time: "1 分钟",
+    steps: [
+      "1 勺 OM 蛋白粉 + 250–300ml 冷水，摇杯摇 15 秒。",
+      "运动后 30 分钟内喝。晚上 11 点喝也不会太撑，不影响睡眠。",
+    ],
+  },
+  omYogurt: {
+    name: "OM 蛋白酸奶杯",
+    colors: ["#6b8fff", "#ff8fb8"], art: ["🥛", "💪"],
+    time: "2 分钟",
+    steps: ["希腊酸奶加 OM 蛋白粉搅匀，太稠就加 1–2 汤匙水。课后马上吃，帮助肌肉恢复。"],
+  },
+  spEgg: {
+    name: "蒸番薯 + 水煮蛋（课前轻食）",
+    colors: ["#ff9a3c", "#ffe0a0"], art: ["🍠", "🥚"],
+    time: "15 分钟（可前一晚准备）",
+    steps: ["番薯和鸡蛋前一晚蒸/煮好放冰箱，早上微波 1 分钟。上课前 60–90 分钟吃，不会胀肚。"],
+  },
+};
+
+// 一周安排
+const WEEK = [
+  {
+    key: "mon", day: "星期一", short: "一", type: "train", tag: "双场匹克球",
+    target: 1900,
+    note: "今天两场匹克球（5–6pm 训练 + 10–11pm 比赛），热量提高到约 1900 kcal。训练前吃玉米补能量，打完球喝 OM 蛋白饮。全天喝水 2.5–3 升，可在水里加一小撮盐。",
+    meals: [
+      { slot: "早餐", time: "8:00", dish: "eggSpYog", items: [["egg", 100], ["sp", 200], ["yog", 150]] },
+      { slot: "午餐", time: "12:30", dish: "chickenPotSoup", items: [["chk", 150], ["pot", 300], ["soup", 400], ["oil", 5]] },
+      { slot: "训练前", time: "4:00pm", dish: "cornSteam", items: [["corn", 150], ["egg", 50]], extra: true },
+      { slot: "晚餐", time: "7:00pm", dish: "garlicPrawnTofu", items: [["prawn", 150], ["tofu", 150], ["sp", 250], ["oil", 8]] },
+      { slot: "球后", time: "11:15pm", dish: "omShake", items: [["om", 30]], extra: true },
+    ],
+  },
+  {
+    key: "tue", day: "星期二", short: "二", type: "rest", tag: "休息日",
+    target: 1600,
+    note: "休息日 1600 kcal。肌肉在休息日修复，蛋白质照样吃够。可以散步 30 分钟。",
+    meals: [
+      { slot: "早餐", time: "8:00", dish: "cornOmelette", items: [["egg", 100], ["corn", 120], ["yog", 150], ["oil", 3]] },
+      { slot: "午餐", time: "12:30", dish: "sardineSoup", items: [["sard", 155], ["soup", 400], ["pot", 250], ["oil", 5]] },
+      { slot: "晚餐", time: "7:00pm", dish: "steamedEggTofuChicken", items: [["chk", 150], ["tofu", 150], ["egg", 50], ["sp", 250]] },
+    ],
+  },
+  {
+    key: "wed", day: "星期三", short: "三", type: "rest", tag: "休息日",
+    target: 1600,
+    note: "休息日 1600 kcal。番薯可以一次蒸好 2–3 天的份量，放冰箱，省时间。",
+    meals: [
+      { slot: "早餐", time: "8:00", dish: "proteinBowl", items: [["yog", 200], ["om", 30], ["sp", 200]] },
+      { slot: "午餐", time: "12:30", dish: "chickenSpBowl", items: [["chk", 150], ["sp", 300], ["egg", 50], ["oil", 8]] },
+      { slot: "晚餐", time: "7:00pm", dish: "prawnCornSoup", items: [["prawn", 180], ["corn", 250], ["soup", 400], ["oil", 5]] },
+    ],
+  },
+  {
+    key: "thu", day: "星期四", short: "四", type: "rest", tag: "休息日",
+    target: 1600,
+    note: "休息日 1600 kcal。煎饼可以多做一份当明天的备餐。",
+    meals: [
+      { slot: "早餐", time: "8:00", dish: "eggSpYog", items: [["egg", 100], ["sp", 180], ["yog", 150]] },
+      { slot: "午餐", time: "12:30", dish: "sardinePotCake", items: [["sard", 155], ["pot", 250], ["egg", 50], ["oil", 5], ["soup", 300]] },
+      { slot: "晚餐", time: "7:00pm", dish: "tofuChickenGarlic", items: [["chk", 150], ["tofu", 200], ["corn", 150], ["oil", 5]] },
+    ],
+  },
+  {
+    key: "fri", day: "星期五", short: "五", type: "train", tag: "Reformer 50分钟",
+    target: 1700,
+    note: "Reformer Pilates 50 分钟，热量约 1700 kcal。课后加一杯 OM 蛋白酸奶。上课前 1.5 小时不要吃太饱。",
+    meals: [
+      { slot: "早餐", time: "8:00", dish: "cornOmelette", items: [["egg", 100], ["corn", 120], ["yog", 150], ["oil", 3]] },
+      { slot: "午餐", time: "12:30", dish: "chickenPotSoup", items: [["chk", 150], ["sp", 200], ["soup", 400], ["oil", 5]] },
+      { slot: "课后", time: "课后30分钟内", dish: "omYogurt", items: [["yog", 150], ["om", 30]], extra: true },
+      { slot: "晚餐", time: "7:00pm", dish: "soupEggPrawn", items: [["soup", 400], ["egg", 100], ["prawn", 100], ["pot", 200]] },
+    ],
+  },
+  {
+    key: "sat", day: "星期六", short: "六", type: "hot", tag: "Hot Mat Reformer",
+    target: 1750,
+    note: "热瑜伽式 Hot Mat Reformer 出汗很多，热量约 1750 kcal。课前课后各喝 500ml 水，加一小撮盐或电解质。菜单按「上午上课」安排，下午上课就把课前轻食当下午茶。",
+    meals: [
+      { slot: "课前早餐", time: "课前 1.5 小时", dish: "spEgg", items: [["sp", 200], ["egg", 100]] },
+      { slot: "课后", time: "课后30分钟内", dish: "omShake", items: [["om", 30], ["yog", 150]], extra: true },
+      { slot: "午餐", time: "1:00pm", dish: "garlicPrawnTofu", items: [["prawn", 150], ["tofu", 150], ["corn", 250], ["oil", 8]] },
+      { slot: "晚餐", time: "7:00pm", dish: "chickenPotSoup", items: [["chk", 150], ["pot", 350], ["soup", 400], ["oil", 8]] },
+    ],
+  },
+  {
+    key: "sun", day: "星期日", short: "日", type: "hot", tag: "Hot Mat Reformer",
+    target: 1750,
+    note: "第二天 Hot Mat Reformer，热量约 1750 kcal。今晚顺便蒸好下周一、二的番薯，为周一双场做准备。",
+    meals: [
+      { slot: "课前早餐", time: "课前 1.5 小时", dish: "cornSteam", items: [["corn", 150], ["egg", 50]] },
+      { slot: "课后", time: "课后30分钟内", dish: "proteinBowl", items: [["yog", 150], ["om", 30], ["sp", 100]], extra: true },
+      { slot: "午餐", time: "1:00pm", dish: "sardineSoup", items: [["sard", 155], ["soup", 400], ["sp", 250]] },
+      { slot: "晚餐", time: "7:00pm", dish: "steamedEggTofuChicken", items: [["chk", 150], ["tofu", 150], ["egg", 50], ["pot", 300]] },
+    ],
+  },
+];
+
+// English side of the bilingual app
+const EN = {
+  foods: {
+    sp: ["Sweet potato", "steamed/baked, weighed with skin"], pot: ["Potato", "steamed/baked, weighed with skin"],
+    corn: ["Corn (jagung)", "edible part (1 cob ≈ 150g)"], chk: ["Chicken breast", "raw weight"], tofu: ["White tofu", ""],
+    prawn: ["Prawns", "raw, peeled"], sard: ["Canned sardines (tomato)", "with a little sauce"], egg: ["Egg", "1 egg ≈ 50g"],
+    yog: ["Greek yoghurt (plain)", "low-fat"], om: ["OM protein powder", "1 scoop ≈ 30g, check your label"],
+    soup: ["Tomato carrot soup", "see the Soup recipe"], oil: ["Olive oil", "1 tsp ≈ 5g"],
+  },
+  slots: { "早餐": "Breakfast", "午餐": "Lunch", "晚餐": "Dinner", "加餐": "Snack", "训练前": "Pre-training", "球后": "After game",
+    "课后": "After class", "课前早餐": "Pre-class breakfast" },
+  dishes: {
+    eggSpYog: { name: "Boiled eggs · steamed sweet potato · Greek yoghurt", time: "15 min", steps: [
+      "Wash the sweet potato, keep the skin, cut into chunks and steam on high for 15 min until a chopstick slides through.",
+      "Meanwhile put eggs in cold water; once boiling, cook 8 min (hard) or 6 min (jammy), then cool in cold water and peel.",
+      "Spoon the Greek yoghurt into a bowl. Add a pinch of cinnamon if you like, no sugar."] },
+    cornOmelette: { name: "Corn & spring onion omelette + Greek yoghurt", time: "12 min", steps: [
+      "Cut the kernels off the corn (or use cooked corn).",
+      "Beat the eggs with salt, pepper and the corn.",
+      "Brush a non-stick pan with oil, pour in the eggs on low heat, cover 3 min until set, fold and serve.",
+      "Serve with a bowl of plain Greek yoghurt."] },
+    proteinBowl: { name: "Sweet potato protein yoghurt bowl", time: "5 min (steam the sweet potato the night before)", steps: [
+      "Stir the OM protein powder into the Greek yoghurt until smooth (add 1 tbsp water if too thick).",
+      "Dice the steamed sweet potato and put it on top.",
+      "Eat it cold, like a dessert."] },
+    chickenPotSoup: { name: "Pan-seared chicken · roast potato · tomato soup", time: "30 min", steps: [
+      "Slice the chicken breast into two thin fillets. Marinate 10 min with salt, black pepper, garlic powder and a little soy sauce.",
+      "Cut the potatoes, microwave 4 min (or steam 12 min), then air-fry at 200°C for 8 min until golden.",
+      "Oil a pan and sear the chicken 3–4 min per side on medium heat. Rest 3 min before slicing.",
+      "Heat a bowl of the tomato carrot soup to go with it."] },
+    garlicPrawnTofu: { name: "Garlic prawns with braised white tofu", time: "15 min", steps: [
+      "Toss the prawns with a little salt and pepper. Cut the tofu into cubes.",
+      "Heat oil and gently fry 3 cloves of minced garlic until fragrant.",
+      "Add the prawns, stir-fry until pink, then take them out.",
+      "Add the tofu and half a bowl of water with a little oyster sauce, simmer 3 min, return the prawns and top with spring onion.",
+      "Serve with steamed sweet potato or corn."] },
+    sardineSoup: { name: "Sardine tomato soup pot", time: "10 min", steps: [
+      "Bring the tomato carrot soup to a boil in a small pot.",
+      "Add the sardines with their sauce, break into big pieces with a spoon, simmer 3 min.",
+      "Season with black pepper; add chilli flakes if you like it spicy.",
+      "Eat with steamed potato or sweet potato — dip them in the sauce."] },
+    steamedEggTofuChicken: { name: "Steamed egg with chicken & tofu", time: "20 min", steps: [
+      "Mince or finely dice the chicken; mix with a little salt, soy sauce and pepper.",
+      "Lay tofu slices on a plate and spread the chicken on top.",
+      "Beat the eggs with 1.5× their volume of warm water and a pinch of salt; strain onto the plate.",
+      "Cover with a plate and steam on medium-low for 12–15 min. Finish with soy sauce and spring onion."] },
+    chickenSpBowl: { name: "Chicken & sweet potato power bowl", time: "25 min", steps: [
+      "Cube the chicken and marinate 10 min with soy sauce, garlic and black pepper.",
+      "Dice the sweet potato; air-fry at 190°C for 15 min (or steam 12 min).",
+      "Oil a pan and stir-fry the chicken on high for 5–6 min until cooked through.",
+      "Halve a jammy egg and put everything in one bowl."] },
+    prawnCornSoup: { name: "Poached prawns · sweet corn · tomato soup", time: "15 min", steps: [
+      "Cut the corn into pieces and boil 8 min.",
+      "Boil water with ginger slices, add the prawns and cook 2–3 min until pink and curled.",
+      "Dip: soy sauce + minced garlic + sliced chilli.",
+      "Serve with a hot bowl of tomato carrot soup."] },
+    sardinePotCake: { name: "Sardine potato cakes", time: "25 min", steps: [
+      "Steam the potatoes and mash.",
+      "Drain the sardines a little, remove the centre bone, mix with the mash, 1 egg, spring onion and pepper.",
+      "Shape into 4 small cakes.",
+      "Pan-fry in a lightly oiled non-stick pan, 3 min per side on medium-low, or air-fry at 200°C for 10 min."] },
+    soupEggPrawn: { name: "Tomato soup with poached eggs & prawns + potato", time: "15 min", steps: [
+      "Bring the tomato carrot soup to a boil in a frying pan.",
+      "Make 2 small wells and crack an egg into each. Cover and cook 4 min on low.",
+      "Add the prawns and cook 2 more minutes until pink.",
+      "Add black pepper and serve with steamed potato."] },
+    tofuChickenGarlic: { name: "Steamed garlic tofu with chicken slices", time: "20 min", steps: [
+      "Slice the chicken thinly against the grain; toss with soy sauce, a little cornflour and pepper.",
+      "Lay thick tofu slices on a plate and cover with the chicken.",
+      "Gently fry minced garlic in a little oil until golden and spoon it over the chicken.",
+      "Steam on high for 10 min. Finish with soy sauce and spring onion."] },
+    cornSteam: { name: "Steamed sweet corn", time: "10 min", steps: [
+      "Steam or boil the corn (whole or in pieces) for 8–10 min. Eat it 45–60 min before training for easy energy."] },
+    omShake: { name: "OM protein shake", time: "1 min", steps: [
+      "1 scoop OM protein + 250–300ml cold water, shake 15 seconds.",
+      "Drink within 30 min after exercise. At 11pm it is light enough not to disturb your sleep."] },
+    omYogurt: { name: "OM protein yoghurt cup", time: "2 min", steps: [
+      "Stir OM protein into the Greek yoghurt, add 1–2 tbsp water if too thick. Eat right after class to help your muscles recover."] },
+    spEgg: { name: "Steamed sweet potato + boiled egg (light pre-class)", time: "15 min (prep the night before)", steps: [
+      "Steam the sweet potato and boil the eggs the night before; microwave 1 min in the morning. Eat 60–90 min before class so you don't feel bloated."] },
+  },
+  days: {
+    mon: { day: "Monday", tag: "2× pickleball", note: "Two pickleball sessions today (5–6pm training + 10–11pm game), so about 1,900 kcal. Corn before training for energy, OM shake after the game. Drink 2.5–3 litres of water; a pinch of salt helps." },
+    tue: { day: "Tuesday", tag: "Rest day", note: "Rest day, 1,600 kcal. Muscles repair on rest days, so keep protein high. A 30-minute walk is great." },
+    wed: { day: "Wednesday", tag: "Rest day", note: "Rest day, 1,600 kcal. Steam 2–3 days of sweet potato at once and keep it in the fridge to save time." },
+    thu: { day: "Thursday", tag: "Rest day", note: "Rest day, 1,600 kcal. Make an extra batch of potato cakes for tomorrow." },
+    fri: { day: "Friday", tag: "Reformer 50 min", note: "Reformer Pilates 50 min, about 1,700 kcal. Have an OM yoghurt cup after class. Don't eat a big meal in the 1.5 hours before class." },
+    sat: { day: "Saturday", tag: "Hot Mat Reformer", note: "Hot Mat Reformer makes you sweat a lot: about 1,750 kcal. Drink 500ml water before and after, with a pinch of salt or electrolytes. Planned for a morning class; if yours is in the afternoon, have the light pre-class meal as an afternoon snack." },
+    sun: { day: "Sunday", tag: "Hot Mat Reformer", note: "Second Hot Mat Reformer day, about 1,750 kcal. Tonight, steam sweet potatoes for Monday and Tuesday to get ready for double pickleball." },
+  },
+};
+const enSlot = s => EN.slots[s] || "";
+
+
+const SOUP_RECIPE = [ // 一份 400g 浓汤
+  ["番茄", 200, "🍅", "Tomato"], ["红萝卜（可换白萝卜）", 100, "🥕", "Carrot (or white radish)"], ["洋葱", 60, "🧅", "Onion"],
+  ["蒜头", 10, "🧄", "Garlic"], ["橄榄油", 3, "🫒", "Olive oil"],
+];
+const HERBS = ["🌿", "🍃", "🌱"];
+
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+};
+const r0 = n => Math.round(n);
+const r1 = n => Math.round(n * 10) / 10;
+const calc = items => items.reduce((a, [f, g]) => {
+  a.k += FOODS[f][1] * g / 100; a.p += FOODS[f][2] * g / 100; return a;
+}, { k: 0, p: 0 });
+const dayTotals = d => d.meals.reduce((a, m) => { const t = calc(m.items); a.k += t.k; a.p += t.p; return a; }, { k: 0, p: 0 });
+
+// week id for "ate" ticks resets every Monday
+const pad = n => String(n).padStart(2, "0");
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+function mondayOf(d) { const x = new Date(d); x.setHours(12, 0, 0, 0); x.setDate(x.getDate() - (x.getDay() + 6) % 7); return x; }
+function dateForIdx(i) { const m = mondayOf(new Date()); m.setDate(m.getDate() + i); return ymd(m); }
+const planIdxOf = date => (new Date(date + "T12:00").getDay() + 6) % 7;
+const shiftDate = (date, n) => { const d = new Date(date + "T12:00"); d.setDate(d.getDate() + n); return ymd(d); };
+function weekId() { return ymd(mondayOf(new Date())); }
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const PROTEIN_GOAL = 110;
+const todayIdx = (new Date().getDay() + 6) % 7;
+let cur = store.get("lastDay", null);
+cur = (cur != null && cur >= 0 && cur < 7) ? cur : todayIdx;
+let open = {};
+let ate = store.get("ate-" + weekId(), {});
+
+document.getElementById("dateline").textContent =
+  new Date().toLocaleDateString("zh-CN", { month: "long", day: "numeric", weekday: "long" }) + " · " +
+  new Date().toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+
+function photo(dish, slot, extra, kcal) {
+  const d = DISHES[dish];
+  const [a, b] = d.colors;
+  const pos = d.art.length === 1 ? [[50, 50]] : d.art.length === 2 ? [[36, 50], [64, 50]] : [[34, 40], [66, 40], [50, 68]];
+  const foods = d.art.map((e, i) => `<span class="food" style="left:${pos[i][0]}%;top:${pos[i][1]}%;transform:translate(-50%,-50%) rotate(${(i * 23) % 30 - 12}deg)">${e}</span>`).join("");
+  const herbs = [[22, 24], [78, 70], [70, 22]].map((p, i) => `<span class="herb" style="left:${p[0]}%;top:${p[1]}%">${HERBS[i]}</span>`).join("");
+  return `<div class="photo" role="img" aria-label="${d.name}">
+    <div class="cloth" style="background:
+      radial-gradient(circle at 18% 22%, rgba(255,255,255,.35) 0 8%, transparent 9%),
+      radial-gradient(circle at 85% 80%, rgba(255,255,255,.25) 0 10%, transparent 11%),
+      repeating-linear-gradient(45deg, rgba(255,255,255,.10) 0 14px, transparent 14px 28px),
+      linear-gradient(135deg, ${a}, ${b});"></div>
+    <div class="plate">${foods}${herbs}</div>
+    <img class="real" src="photos/${dish}.jpg" alt="" loading="lazy" onerror="this.remove()">
+    <span class="slot${extra ? " extra" : ""}">${slot}${enSlot(slot) ? ` <span class="en-i">${enSlot(slot)}</span>` : ""}</span>
+    <span class="kc">${kcal} kcal</span>
+  </div>`;
+}
+
+function renderDays() {
+  document.getElementById("days").innerHTML = WEEK.map((d, i) => {
+    const icon = d.type === "rest" ? "🌿" : d.type === "hot" ? "🔥" : "🏓";
+    const ic = d.key === "fri" ? "🧘" : icon;
+    return `<button class="day${i === cur ? " on" : ""}${i === todayIdx ? " today" : ""}" role="tab" aria-selected="${i === cur}" data-i="${i}" id="day-${d.key}"><b>${d.short}</b><small>${EN.days[d.key].day.slice(0, 3)}</small><i>${ic}</i></button>`;
+  }).join("");
+}
+
+function renderSummary() {
+  const d = WEEK[cur]; const t = dayTotals(d);
+  const eaten = cloudOn
+    ? mealsOn(dateForIdx(cur)).reduce((a, m) => a + (+m.kcal || 0), 0)
+    : d.meals.reduce((a, m, j) => isAte(cur, j) ? a + calc(m.items).k : a, 0);
+  const C = 2 * Math.PI * 50; const frac = Math.min(1, eaten / t.k);
+  document.getElementById("summary").innerHTML = `
+    <div class="ring">
+      <svg viewBox="0 0 120 120" aria-hidden="true">
+        <circle cx="60" cy="60" r="50" fill="none" stroke="var(--line)" stroke-width="12"/>
+        <circle cx="60" cy="60" r="50" fill="none" stroke="var(--accent)" stroke-width="12" stroke-linecap="round"
+          stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - frac)}"/>
+      </svg>
+      <div class="c"><strong>${r0(eaten)}</strong><span>已吃 Eaten<br>/ ${r0(t.k)} kcal</span></div>
+    </div>
+    <div class="sum-info">
+      <h2>${d.day} <span class="en-i">${EN.days[d.key].day}</span></h2>
+      <span class="badge ${d.type}">${d.type === "rest" ? "🌿" : d.type === "hot" ? "🔥" : d.key === "fri" ? "🧘" : "🏓"} ${d.tag}${d.tag !== EN.days[d.key].tag ? " · " + EN.days[d.key].tag : ""}</span>
+      <div class="stats">
+        <div class="stat"><span class="num">${r0(t.k)}</span><small>全天 Day kcal</small></div>
+        <div class="stat"><span class="num p">${r0(t.p)}g</span><small>蛋白质 Protein</small></div>
+        <div class="stat"><span class="num">${d.meals.length}</span><small>餐 Meals</small></div>
+      </div>
+    </div>`;
+  document.getElementById("note").innerHTML = `${esc(d.note)}<span class="en">${esc(EN.days[d.key].note)}</span>`;
+}
+
+function renderMeals() {
+  const d = WEEK[cur];
+  document.getElementById("meals").innerHTML = d.meals.map((m, j) => {
+    const dish = DISHES[m.dish], dE = EN.dishes[m.dish]; const t = calc(m.items); const id = d.key + j; const isOpen = !!open[id];
+    const rows = m.items.map(([f, g]) => {
+      const F = FOODS[f];
+      const E = EN.foods[f];
+      return `<tr><td>${F[3]} ${F[0]} <span class="en-i">${E[0]}</span>${F[4] ? `<small>${F[4]}${E[1] ? " · " + E[1] : ""}</small>` : ""}</td><td class="r">${g}g</td><td class="r">${r0(F[1] * g / 100)}</td><td class="r p">${r1(F[2] * g / 100)}</td></tr>`;
+    }).join("");
+    const done = isAte(cur, j);
+    return `<article class="meal${done ? " ate" : ""}">
+      <button class="meal-head" data-open="${id}" aria-expanded="${isOpen}" id="head-${id}">
+        ${photo(m.dish, m.slot, m.extra, r0(t.k))}
+        <div class="meal-title">
+          <h3>${dish.name}<span class="en">${dE.name}</span></h3>
+          <div class="meal-meta"><span>🕒 ${m.time}</span><span>⏱ ${dish.time} · ${dE.time}</span><span class="p">蛋白质 Protein ${r0(t.p)}g</span></div>
+        </div>
+        <div class="more">${isOpen ? "收起 Close ▲" : "看分量和煮法 Portions & recipe ▼"}</div>
+      </button>
+      ${isOpen ? `<div class="detail">
+        <table class="tbl">
+          <thead><tr><th>食材 Food</th><th class="r">克数 g</th><th class="r">kcal</th><th class="r">蛋白质 g</th></tr></thead>
+          <tbody>${rows}</tbody>
+          <tfoot><tr><td>合计 Total</td><td></td><td class="r">${r0(t.k)}</td><td class="r p">${r1(t.p)}</td></tr></tfoot>
+        </table>
+        <h4 class="steps-h">煮法 Recipe <span>${dish.time}</span></h4>
+        <ol class="steps">${dish.steps.map((s, i) => `<li><span>${s}<span class="en">${dE.steps[i] || ""}</span></span></li>`).join("")}</ol>
+        <button class="done" data-ate="${j}" id="ate-${id}">${done ? "✓ 已经吃了 Eaten" : "吃完了，打个勾 · Mark as eaten"}</button>
+      </div>` : ""}
+    </article>`;
+  }).join("");
+}
+
+function renderMenu() { renderDays(); renderSummary(); renderMeals(); }
+
+function renderShop() {
+  const tot = {};
+  WEEK.forEach(d => d.meals.forEach(m => m.items.forEach(([f, g]) => { tot[f] = (tot[f] || 0) + g; })));
+  const soupServ = (tot.soup || 0) / 400;
+  const checked = store.get("shop-" + weekId(), {});
+  const hint = {
+    egg: g => `约 ${Math.ceil(g / 50)} 颗 · about ${Math.ceil(g / 50)} eggs`, corn: g => `约 ${Math.ceil(g / 150)} 条 · about ${Math.ceil(g / 150)} cobs`,
+    om: g => `约 ${Math.round(g / 30)} 勺 · ${Math.round(g / 30)} scoops`, sard: g => `约 ${Math.ceil(g / 155)} 罐（155g装）· ${Math.ceil(g / 155)} cans (155g)`,
+    oil: g => `约 ${Math.ceil(g / 5)} 茶匙 · ${Math.ceil(g / 5)} tsp`, sp: () => `生重，可多买一点 · raw, buy a bit extra`,
+    pot: () => `生重 · raw weight`, chk: () => `生重 · raw weight`, prawn: () => `去壳后重量 · peeled weight`,
+  };
+  const rows = Object.keys(tot).filter(f => f !== "soup").map(f => {
+    let g = tot[f]; if (f === "oil") g += soupServ * 3;
+    const F = FOODS[f];
+    return [f, F[3], F[0], EN.foods[f][0], g, hint[f] ? hint[f](g) : ""];
+  });
+  SOUP_RECIPE.filter(s => s[0] !== "橄榄油").forEach(([n, g, e, en]) => rows.push(["soup-" + n, e, n + "（浓汤用）", en + " (for soup)", g * soupServ, ""]));
+  document.getElementById("view-shop").innerHTML = `
+    <div class="box">
+      <h2>本周购物清单<span class="en">This week's shopping list</span></h2>
+      <p class="sub">按 7 天菜单自动加总，买好就打勾。每个星期一自动重置。<br>Added up from the 7-day menu. Tick items as you buy them; resets every Monday.</p>
+      <div class="shop">${rows.map(([k, e, n, en, g, h]) => `
+        <label for="shop-${k}"><input type="checkbox" id="shop-${k}" data-shop="${k}"${checked[k] ? " checked" : ""}>
+          <span class="e">${e}</span><span>${n}<span class="en">${en}</span>${h ? `<span class="h">${h}</span>` : ""}</span>
+          <span class="q">${g >= 1000 ? r1(g / 1000) + " kg" : r0(g) + " g"}</span></label>`).join("")}
+      </div>
+    </div>
+    <div class="box">
+      <h2>备餐小技巧<span class="en">Meal-prep tips</span></h2>
+      <ul class="tips">
+        <li>星期日、星期三晚上各煮一大锅浓汤（每次 4–5 份），分装放冰箱，可放 4 天。<span class="en">Cook a big pot of soup (4–5 servings) on Sunday and Wednesday nights. It keeps 4 days in the fridge.</span></li>
+        <li>番薯、马铃薯一次蒸 2–3 天的量。<span class="en">Steam 2–3 days of sweet potato and potato at once.</span></li>
+        <li>鸡胸肉买回来就分成 150g 一包冷冻，前一晚拿到冷藏室解冻。<span class="en">Pack chicken breast into 150g bags and freeze; move one to the fridge the night before.</span></li>
+      </ul>
+    </div>`;
+}
+
+function renderGuide() {
+  const weekRows = WEEK.map(d => { const t = dayTotals(d); return `<tr><td>${d.day}<span class="en">${EN.days[d.key].day}</span></td><td>${d.tag}<span class="en">${EN.days[d.key].tag}</span></td><td class="r">${r0(t.k)}</td><td class="r p">${r0(t.p)}g</td></tr>`; }).join("");
+  const soupSteps = [
+    ["番茄顶部划十字，滚水烫 30 秒去皮，切块。萝卜、洋葱切块，蒜头拍扁。", "Score a cross on the tomatoes, blanch 30 seconds, peel and chop. Chop the carrot and onion; crush the garlic."],
+    ["锅里放橄榄油，小火炒洋葱和蒜 3 分钟到香软。", "Heat the olive oil and gently cook the onion and garlic for 3 min until soft."],
+    ["加入萝卜和番茄，炒 2 分钟，加水刚好盖过食材。", "Add the carrot and tomato, stir 2 min, then add water just to cover."],
+    ["中小火煮 25 分钟，萝卜软烂即可。", "Simmer on medium-low for 25 min until the carrot is very soft."],
+    ["关火稍凉，用搅拌机打成浓汤。加盐、黑胡椒调味。", "Cool slightly and blend until smooth. Season with salt and black pepper."],
+    ["分装成 400g 一盒冷藏（4 天）或冷冻（1 个月）。", "Pack into 400g boxes: fridge 4 days, freezer 1 month."],
+  ];
+  const tips = [
+    ["<b>休息日（二、三、四）</b>：1600 kcal，减脂的基础。", "Rest days (Tue–Thu): 1,600 kcal, your fat-loss base."],
+    ["<b>星期五 Reformer</b>：约 1700 kcal，多一份课后蛋白。", "Friday Reformer: about 1,700 kcal, with an extra protein snack after class."],
+    ["<b>周末 Hot Mat Reformer</b>：约 1750 kcal，热课出汗多，多补水和盐。", "Weekend Hot Mat Reformer: about 1,750 kcal; drink extra water and salt."],
+    ["<b>星期一双场匹克球</b>：约 1900 kcal，加训练前玉米和球后蛋白饮。", "Monday double pickleball: about 1,900 kcal, with corn before and a shake after."],
+    ["蛋白质每天约 125–155g，帮你减脂时保住肌肉。", "About 125–155g protein a day keeps your muscle while you lose fat."],
+    ["OM 蛋白粉按每勺 30g ≈ 120 kcal / 24g 蛋白质计算，请对照你那罐的包装标签。", "OM protein is counted as 30g scoop ≈ 120 kcal / 24g protein; check your tub's label."],
+    ["可随意加：青菜、黄瓜、生菜（几乎没有热量），酱青、盐、胡椒、香料。", "Free extras: leafy greens, cucumber, lettuce, soy sauce, salt, pepper, spices."],
+    ["每周同一天早上空腹称体重。连续 2 周没变化，每天减 100 kcal（少 100g 番薯即可）。", "Weigh yourself on the same morning each week. If nothing changes for 2 weeks, cut 100 kcal a day (100g less sweet potato)."],
+  ];
+  const home = [
+    ["用 iPhone 的 <b>Safari</b> 打开这个 App 的网址。", "Open this app's address in Safari on your iPhone."],
+    ["点下方的「分享」按钮（方块加向上箭头）。", "Tap the Share button (square with an up arrow)."],
+    ["选「添加到主屏幕」，名字写「Lean的减脂旅途」，点「添加」。", "Choose “Add to Home Screen”, name it “Lean的减脂旅途”, tap Add."],
+    ["以后在主屏幕点图标就能打开，自动跳到今天的菜单。", "Tap the icon any time; it opens on today's menu."],
+  ];
+  const li = arr => arr.map(([z, e]) => `<li>${z}<span class="en">${e}</span></li>`).join("");
+  document.getElementById("view-guide").innerHTML = `
+    <div class="meal">
+      ${photo("soupEggPrawn", "基础浓汤", false, 142)}
+      <div class="detail" style="padding-top:14px">
+        <h2>番茄萝卜浓汤（一份 400g）<span class="en">Tomato carrot soup (400g serving)</span></h2>
+        <table class="tbl">
+          <thead><tr><th>食材 Food</th><th class="r">一份 1×</th><th class="r">一锅 5×</th></tr></thead>
+          <tbody>${SOUP_RECIPE.map(([n, g, e, en]) => `<tr><td>${e} ${n}<small>${en}</small></td><td class="r">${g}g</td><td class="r">${g * 5}g</td></tr>`).join("")}</tbody>
+          <tfoot><tr><td>每份 Per serving</td><td class="r">142 kcal</td><td class="r p">4g 蛋白质</td></tr></tfoot>
+        </table>
+        <h4 class="steps-h">煮法 Recipe <span>40 分钟 · 40 min</span></h4>
+        <ol class="steps">${soupSteps.map(([z, e]) => `<li><span>${z}<span class="en">${e}</span></span></li>`).join("")}</ol>
+      </div>
+    </div>
+    <div class="box">
+      <h2>一周总览<span class="en">Week at a glance</span></h2>
+      <table class="week-tbl"><thead><tr><th>日子 Day</th><th>运动 Exercise</th><th class="r">kcal</th><th class="r">蛋白质</th></tr></thead><tbody>${weekRows}</tbody></table>
+    </div>
+    <div class="box">
+      <h2>热量怎么定的<span class="en">How the calories were set</span></h2>
+      <ul class="tips">${li(tips)}</ul>
+    </div>
+    <div class="box">
+      <h2>放到 iPhone 主屏幕<span class="en">Add to your iPhone home screen</span></h2>
+      <ul class="tips">${li(home)}</ul>
+    </div>
+    <div class="box stack">
+      <h2>备份资料<span class="en">Back up your records</span></h2>
+      <p class="sub">你的饮食和身材记录只存在这台 iPhone 里。每个月导出一次备份，换手机或清除 Safari 资料时就不会不见。<br>Your records live only on this iPhone. Export a backup monthly so nothing is lost if you change phones or clear Safari data.</p>
+      <button class="btn ghost" id="backup-out">导出备份 · Export backup</button>
+      <label class="btn ghost" for="backup-in" style="text-align:center">导入备份 · Restore backup<input type="file" id="backup-in" accept="application/json,.json" style="position:absolute;width:1px;height:1px;opacity:0"></label>
+      <div id="backup-status"></div>
+    </div>`;
+}
+
+let view = "menu";
+function show(v2) {
+  view = v2;
+  ["menu", "log", "body", "shop", "guide"].forEach(v => {
+    document.getElementById("view-" + v).hidden = v !== view;
+    document.getElementById("tab-" + v).classList.toggle("on", v === view);
+  });
+  if (view === "log") renderLog();
+  if (view === "body") renderBody();
+  if (view === "shop") renderShop();
+  if (view === "guide") renderGuide();
+  window.scrollTo(0, 0);
+}
+
+/* ---------- saved records (private to the viewer) + Claude analysis ---------- */
+let db = null, col = null, sample = null, imgOK = false, cloudOn = false;
+let meals = [], bodies = [], summaries = [];
+const today = ymd(new Date());
+let logDate = today;
+const $ = id => document.getElementById(id);
+
+const SAMPLE_ERR = {
+  not_granted: "你没有允许这个页面使用 Claude，所以无法分析。可在页面的权限设置里打开。\nYou haven't allowed this page to use Claude. Turn it on in the page's permissions.",
+  sampling_disabled: "你的账户目前不能在页面里使用 Claude。\nClaude isn't available in pages for your account.",
+  rate_limited: "用得太频繁了，请过几分钟再试。\nToo many tries; please wait a few minutes.",
+  image_rejected: "这张照片读不了，请换一张（JPG 或 PNG）。\nThis photo can't be read; try another (JPG or PNG).",
+  images_unavailable: "这里不能传照片给 Claude，请在 Claude App 或网页里打开。\nPhotos can't be sent here; open the page in the Claude app or claude.ai.",
+  refused: "这张照片无法分析，请换一张更清楚的。\nThis photo can't be analysed; try a clearer one.",
+  invalid_json: "这次结果没读懂，请再按一次。\nCouldn't read the result; please tap again.",
+  session_expired: "登录过期了，请重新登录 Claude 再试。\nYou were signed out; sign in to Claude and try again.",
+};
+const errText = e => SAMPLE_ERR[e?.code] || "暂时连不上，请稍后再按一次。\nCan't connect right now; try again shortly.";
+
+function mealsOn(date) { return meals.filter(m => m.date === date).sort((a, b) => (a.ts || 0) - (b.ts || 0)); }
+function isAte(dayIdx, j) {
+  const d = WEEK[dayIdx];
+  if (cloudOn) return meals.some(m => m.source === "plan" && m.planKey === d.key + j && m.date === dateForIdx(dayIdx));
+  return !!ate[d.key + j];
+}
+async function toggleAte(dayIdx, j) {
+  const d = WEEK[dayIdx], m = d.meals[j], date = dateForIdx(dayIdx);
+  if (!cloudOn) {
+    ate[d.key + j] = !ate[d.key + j]; store.set("ate-" + weekId(), ate); renderSummary(); renderMeals(); return;
+  }
+  await logPlan(date, j);
+}
+async function logPlan(date, j) {
+  const d = WEEK[planIdxOf(date)], m = d.meals[j];
+  const ref = col.doc(`plan-${date}-${d.key}${j}`);
+  try {
+    if (meals.some(x => x.id === ref.id)) await ref.delete();
+    else {
+      const t = calc(m.items);
+      await ref.set({ kind: "meal", source: "plan", date, planKey: d.key + j, slot: m.slot, name: DISHES[m.dish].name,
+        dish: m.dish, kcal: r0(t.k), protein: r1(t.p), ts: Date.now() });
+    }
+  } catch (e) { alertBox("没有保存成功，请再试一次。\nNot saved; please try again."); }
+}
+function alertBox(msg) {
+  const el = view === "body" ? $("body-status") : view === "log" ? $("meal-result") : $("note");
+  if (el) el.innerHTML = `<p class="warn">${esc(msg)}</p>`;
+}
+
+async function thumb(file, max, q) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+    const s = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement("canvas");
+    c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s);
+    c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+    return c.toDataURL("image/jpeg", q);
+  } finally { URL.revokeObjectURL(url); }
+}
+
+function rerender() {
+  renderSummary(); renderMeals();
+  if (view === "log") renderLog();
+  if (view === "body") renderBody();
+}
+
+/* ----- daily log ----- */
+function dayStatus(date) {
+  const plan = WEEK[planIdxOf(date)];
+  const list = mealsOn(date);
+  const k = list.reduce((a, m) => a + (+m.kcal || 0), 0), p = list.reduce((a, m) => a + (+m.protein || 0), 0);
+  const isToday = date === today, h = new Date().getHours();
+  const dayOver = !isToday || h >= 21;
+  let kPill;
+  const diff = k - plan.target;
+  if (Math.abs(diff) <= 100) kPill = `<span class="pill ok">热量达标 Calories on target ✓</span>`;
+  else if (diff > 100) kPill = `<span class="pill high">热量超出 Over by ${r0(diff)} kcal</span>`;
+  else kPill = dayOver ? `<span class="pill low">热量少了 Under by ${r0(-diff)} kcal</span>` : `<span class="pill low">还可以吃 ${r0(-diff)} kcal left</span>`;
+  const pPill = p >= PROTEIN_GOAL ? `<span class="pill ok">蛋白质达标 Protein on target ✓</span>`
+    : `<span class="pill low">蛋白质还差 ${r0(PROTEIN_GOAL - p)}g protein to go</span>`;
+  return { plan, list, k, p, kPill, pPill, dayOver };
+}
+
+function renderReport() {
+  const s = dayStatus(logDate);
+  const kf = Math.min(100, s.k / s.plan.target * 100), pf = Math.min(100, s.p / PROTEIN_GOAL * 100);
+  const saved = summaries.find(x => x.date === logDate);
+  const title = logDate === today ? (s.dayOver ? "今天的总结<span class='en'>Today's report</span>" : "今天到目前为止<span class='en'>Today so far</span>") : "这一天的总结<span class='en'>Daily report</span>";
+  $("log-report").innerHTML = `
+    <h2>${title}</h2>
+    <div class="bar">
+      <div class="bar-top"><span>热量 Calories</span><span><span class="num">${r0(s.k)}</span> / ${s.plan.target} kcal</span></div>
+      <div class="track"><div class="fill${s.k > s.plan.target + 100 ? " over" : ""}" style="width:${kf}%"></div></div>
+    </div>
+    <div class="bar">
+      <div class="bar-top"><span>蛋白质 Protein</span><span><span class="num p">${r0(s.p)}g</span> / ≥ ${PROTEIN_GOAL}g</span></div>
+      <div class="track"><div class="fill p" style="width:${pf}%"></div></div>
+    </div>
+    <div class="pills">${s.list.length ? s.kPill + s.pPill : `<span class="pill low">还没有记录 Nothing logged yet</span>`}</div>
+    <p class="sub">${s.plan.day}目标 ${s.plan.target} kcal（${s.plan.tag}）。${logDate === today ? "晚上 9 点后这里会变成全天总结。" : ""}<br>${EN.days[s.plan.key].day} target ${s.plan.target} kcal (${EN.days[s.plan.key].tag}).${logDate === today ? " After 9pm this becomes your full-day report." : ""}</p>
+    ${dayTips(s)}
+    ${sample && s.list.length ? `<button class="btn ghost" id="sum-go">${saved ? "重新请 Claude 点评 · Ask Claude again" : "请 Claude 点评这一天 · Ask Claude to review"}</button>` : ""}
+    <div id="sum-status"></div>`;
+}
+
+async function runSummary() {
+  const s = dayStatus(logDate);
+  const btn = $("sum-go"); btn.disabled = true;
+  $("sum-status").innerHTML = `<p class="thinking">Claude 正在看你这一天吃了什么… Reviewing your day…</p>`;
+  const lines = s.list.map(m => `- ${m.slot}：${m.name}，${r0(m.kcal)} kcal，蛋白质 ${r0(m.protein)}g${m.source === "plan" ? "（按菜单）" : "（拍照估算）"}`).join("\n");
+  const prompt = `你是一位亲切的减脂营养教练。用户正在减脂，目标是瘦腰腹、手臂和提臀。
+日期：${logDate}（${s.plan.day}，${s.plan.tag}）。当天热量目标 ${s.plan.target} kcal，蛋白质目标至少 ${PROTEIN_GOAL}g。
+当天记录：
+${lines}
+合计：${r0(s.k)} kcal，蛋白质 ${r0(s.p)}g。
+请先用简体中文、口语化写 4-6 行，然后空一行，再用英文写同样的内容（不要用 Markdown 符号）：
+1) 热量和蛋白质有没有达标（直接说结论和数字）
+2) 今天做得好的一点
+3) 需要注意的一点
+4) 明天一个具体可做的小调整（结合用户的菜单：番薯、马铃薯、玉米、鸡胸、豆腐、虾、沙丁鱼、鸡蛋、希腊酸奶、OM蛋白粉）
+如果记录少于 3 餐，提醒可能有漏记。`;
+  try {
+    const { text } = await sample(prompt, { cache: false });
+    await col.doc("summary-" + logDate).set({ kind: "summary", date: logDate, text, kcal: r0(s.k), protein: r0(s.p), ts: Date.now() });
+    $("sum-status").innerHTML = "";
+  } catch (e) {
+    $("sum-status").innerHTML = `<p class="warn">${esc(errText(e))}</p>`;
+    btn.disabled = false;
+  }
+}
+
+function renderLog() {
+  const d = new Date(logDate + "T12:00");
+  $("log-date").innerHTML = (logDate === today ? "今天 · " : "") + d.toLocaleDateString("zh-CN", { month: "long", day: "numeric", weekday: "short" })
+    + `<span class="en">${logDate === today ? "Today · " : ""}${d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}</span>`;
+  $("log-prev").disabled = logDate <= shiftDate(today, -30);
+  $("log-next").disabled = logDate >= today;
+  renderReport();
+  const plan = WEEK[planIdxOf(logDate)];
+  $("log-plan").innerHTML = cloudOn ? plan.meals.map((m, j) => {
+    const logged = meals.some(x => x.id === `plan-${logDate}-${plan.key}${j}`);
+    return `<button class="chipbtn" data-plan="${j}" id="plan-${j}">${logged ? "✓ " : "＋ "}${m.slot} ${enSlot(m.slot)} · ${r0(calc(m.items).k)} kcal</button>`;
+  }).join("") : `<span class="sub">需要登录 Claude 才能记录。Sign in to Claude to log meals.</span>`;
+  const list = mealsOn(logDate);
+  $("log-list").innerHTML = list.length ? list.map(m => `
+    <div class="entry">
+      ${m.photo ? `<img class="th" src="${esc(m.photo)}" alt="${esc(m.name)}">` : `<span class="th">${DISHES[m.dish]?.art[0] || "🍽️"}</span>`}
+      <div class="nm"><b>${esc(m.name)}${m.source === "plan" && EN.dishes[m.dish] ? `<span class="en">${EN.dishes[m.dish].name}</span>` : ""}</b><small>${esc(m.slot)} ${enSlot(m.slot)} · ${m.source === "plan" ? "按菜单 planned" : m.source === "manual" ? "自己记录 my entry" : "拍照估算 photo estimate"}${m.confidence ? " · 准确度 " + esc(m.confidence) : ""}</small>
+        <button class="x" data-del="${esc(m.id)}">删除 Delete</button></div>
+      <div class="kc2">${r0(m.kcal)} kcal<small>${r0(m.protein)}g protein</small></div>
+    </div>`).join("") : `<p class="sub">还没有记录。拍一张照片，或点上面「按菜单」一键记录。<br>Nothing yet. Snap a photo, or tap a planned meal above.</p>`;
+  const h = new Date().getHours();
+  $("meal-slot").value = h < 11 ? "早餐" : h < 15 ? "午餐" : h < 17 ? "加餐" : h < 21 ? "晚餐" : "加餐";
+}
+
+let mealFile = null, mealDraft = null;
+async function analyzeMeal() {
+  const btn = $("meal-go"); btn.disabled = true;
+  $("meal-result").innerHTML = `<p class="thinking">Claude 正在看你的照片，估算热量…（大约 10–30 秒）<br>Estimating calories from your photo… (10–30 s)</p>`;
+  const slot = $("meal-slot").value, note = $("meal-note").value.trim();
+  const prompt = `你是专业营养师。照片是用户的一餐（${slot}），可能是马来西亚家常菜或外食。${note ? "用户补充：" + note + "。" : ""}
+用户正在减脂，常吃番薯、马铃薯、玉米、鸡胸肉、白豆腐、虾、沙丁鱼罐头、鸡蛋、希腊酸奶、OM蛋白粉、番茄萝卜浓汤。
+请识别照片中每样食物，按盘子、餐具的大小估算重量（克），再参考常用营养数据库（USDA、马来西亚食物成分表）估算热量和蛋白质。
+只回 JSON，格式：
+{"dish":"中文菜名 / English name","items":[{"name":"中文 / English","grams":120,"kcal":150,"protein":20.5}],"kcal":总热量数字,"protein":总蛋白质数字,"confidence":"高"或"中"或"低","tip":"一句中文减脂建议。One short English tip."}
+如果照片里不是食物，只回 {"error":"中文说明 / English"}。`;
+  try {
+    const r = await sample.json(prompt, { images: mealFile, cache: false });
+    if (!r || r.error || !Array.isArray(r.items)) throw { code: "x", msg: r?.error };
+    const items = r.items.map(i => ({ name: String(i.name || ""), grams: +i.grams || 0, kcal: +i.kcal || 0, protein: +i.protein || 0 }));
+    const kcal = +r.kcal || items.reduce((a, i) => a + i.kcal, 0);
+    const protein = +r.protein || items.reduce((a, i) => a + i.protein, 0);
+    mealDraft = { kind: "meal", source: "photo", date: logDate, slot, name: String(r.dish || "这一餐"), items, kcal: r0(kcal), protein: r1(protein),
+      confidence: ["高", "中", "低"].includes(r.confidence) ? r.confidence : "中", tip: String(r.tip || ""), note, ts: Date.now() };
+    $("meal-result").innerHTML = `
+      <div class="stack">
+        <h2>${esc(mealDraft.name)}</h2>
+        <table class="tbl"><thead><tr><th>食物 Food</th><th class="r">克 g</th><th class="r">kcal</th><th class="r">蛋白质 g</th></tr></thead>
+          <tbody>${items.map(i => `<tr><td>${esc(i.name)}</td><td class="r">${r0(i.grams)}g</td><td class="r">${r0(i.kcal)}</td><td class="r p">${r1(i.protein)}</td></tr>`).join("")}</tbody>
+          <tfoot><tr><td>合计 Total</td><td></td><td class="r">${r0(kcal)}</td><td class="r p">${r1(protein)}</td></tr></tfoot></table>
+        <p class="sub">估算准确度 Confidence：${esc(mealDraft.confidence)}（${{"高": "high", "中": "medium", "低": "low"}[mealDraft.confidence]}）。${esc(mealDraft.tip)}</p>
+        <div class="row2"><button class="btn" id="meal-save">记下这一餐 Save</button><button class="btn ghost" id="meal-cancel">不要了 Discard</button></div>
+      </div>`;
+  } catch (e) {
+    $("meal-result").innerHTML = `<p class="warn">${esc(e?.msg ? "看起来不是食物 Not food: " + e.msg : errText(e))}</p>`;
+  }
+  btn.disabled = !mealFile;
+}
+async function saveMeal() {
+  if (!mealDraft) return;
+  $("meal-save").disabled = true;
+  try {
+    mealDraft.photo = await thumb(mealFile, 280, 0.7);
+    await col.doc("photo-" + mealDraft.ts).set(mealDraft);
+    mealDraft = null; mealFile = null;
+    $("meal-file").value = ""; $("meal-note").value = "";
+    $("meal-pick").innerHTML = `<b>📷</b><span>已记录！再拍下一餐<br>Saved! Snap your next meal</span><input type="file" id="meal-file" accept="image/*">`;
+    $("meal-result").innerHTML = ""; $("meal-go").disabled = true;
+  } catch (e) { $("meal-result").insertAdjacentHTML("beforeend", `<p class="warn">没有保存成功，请再按一次。Not saved; tap again.</p>`); $("meal-save").disabled = false; }
+}
+
+/* ----- body tracking ----- */
+const shots = [null, null, null];
+const SHOT_NAMES = ["正面 Front", "侧面 Side", "背面 Back"];
+const fmtDelta = (a, b, unit) => {
+  if (a == null || b == null || a === "" || b === "") return "";
+  const d = r1(a - b); if (!d) return ` <small>（持平）</small>`;
+  return ` <small class="${d < 0 ? "down" : "up"}">${d > 0 ? "+" : ""}${d}${unit}</small>`;
+};
+function renderBody() {
+  const latest = bodies[0];
+  const L = $("body-latest"), H = $("body-history");
+  if (latest?.analysis) {
+    const a = latest.analysis;
+    L.hidden = false;
+    L.innerHTML = `
+      <h2>最新分析 · ${esc(latest.date)}<span class="en">Latest analysis</span></h2>
+      ${latest.photos?.length ? `<div class="gallery">${latest.photos.map((p, i) => `<img src="${esc(p)}" alt="${SHOT_NAMES[i] || "照片"}">`).join("")}</div>` : ""}
+      <div class="ai">${esc(a.summary)}</div>
+      ${a.changes ? `<p class="bi"><b>和上次比 Since last time：</b>${esc(a.changes)}</p>` : ""}
+      ${(a.focus || []).length ? `<div class="stack"><h4 class="steps-h">重点部位 Focus areas</h4>${a.focus.map(f => `<div class="workout"><b>${esc(f.area)}</b><span>${esc(f.observation)}</span></div>`).join("")}</div>` : ""}
+      ${(a.workouts || []).length ? `<div class="stack"><h4 class="steps-h">建议你做的运动 Suggested exercises</h4>${a.workouts.map(w => `<div class="workout"><b>${esc(w.name)}</b><span class="how">${esc(w.how)}</span><span>${esc(w.why)}</span></div>`).join("")}</div>` : ""}
+      ${a.weekly ? `<p class="bi"><b>这周怎么安排 This week：</b>${esc(a.weekly)}</p>` : ""}
+      ${a.cheer ? `<p class="note bi">${esc(a.cheer)}</p>` : ""}`;
+  } else L.hidden = true;
+  if (bodies.length) {
+    H.hidden = false;
+    H.innerHTML = `<h2>每周变化<span class="en">Week by week</span></h2>
+      <div class="tblwrap"><table class="week-tbl"><thead><tr><th>日期 Date</th><th class="r">体重 kg</th><th class="r">腰 Waist</th><th class="r">臀 Hip</th><th class="r">高腰 High</th><th></th></tr></thead>
+      <tbody>${bodies.map((b, i) => { const p = bodies[i + 1] || {}; return `<tr>
+        <td>${esc(b.date.slice(5))}</td>
+        <td class="r">${b.weight ?? "-"}${fmtDelta(b.weight, p.weight, "")}</td>
+        <td class="r">${b.waist ?? "-"}${fmtDelta(b.waist, p.waist, "")}</td>
+        <td class="r">${b.hip ?? "-"}${fmtDelta(b.hip, p.hip, "")}</td>
+        <td class="r">${b.hwaist ?? "-"}${fmtDelta(b.hwaist, p.hwaist, "")}</td>
+        <td class="r"><button class="x" data-delbody="${esc(b.id)}">删除 Delete</button></td></tr>`; }).join("")}</tbody></table></div>
+      <p class="sub">体重 kg，围度 cm。绿色＝变小，红色＝变大。臀围变大但腰围变小，通常代表提臀有效果。<br>Weight in kg, measurements in cm. Green = smaller, red = bigger. A smaller waist with a bigger hip usually means your glute work is paying off.</p>`;
+  } else H.hidden = true;
+  const cmp = compareCard(); $("body-compare").hidden = !cmp; $("body-compare").innerHTML = cmp;
+  $("body-workouts").innerHTML = workoutCard();
+}
+
+async function saveBody() {
+  const num = id => { const v = parseFloat($(id).value); return isFinite(v) ? v : null; };
+  const rec = { kind: "body", date: today, weight: num("m-weight"), waist: num("m-waist"), hip: num("m-hip"), hwaist: num("m-hwaist"), ts: Date.now() };
+  const files = shots.filter(Boolean);
+  if (!files.length && rec.weight == null && rec.waist == null && rec.hip == null && rec.hwaist == null) {
+    $("body-status").innerHTML = `<p class="warn">先拍照片或填一个数字。Add a photo or at least one number first.</p>`; return;
+  }
+  const btn = $("body-go"); btn.disabled = true;
+  try {
+    rec.photos = [];
+    for (const f of shots) if (f) rec.photos.push(await thumb(f, 420, 0.72));
+    const prev = bodies.filter(b => b.date !== today).slice(0, 6);
+    if (files.length && sample && imgOK) {
+      $("body-status").innerHTML = `<p class="thinking">Claude 正在看你的照片和数字…（大约 20–60 秒）<br>Analysing your photos and numbers… (20–60 s)</p>`;
+      const hist = prev.map(b => `${b.date}：体重${b.weight ?? "-"}kg 腰${b.waist ?? "-"} 臀${b.hip ?? "-"} 高腰${b.hwaist ?? "-"}cm`).join("\n") || "（第一次记录）";
+      const prompt = `你是一位温和、专业的私人健身教练。照片是用户本周的体态照（依次为：${shots.map((f, i) => f ? SHOT_NAMES[i] : null).filter(Boolean).join("、")}）。
+用户目标：减脂、瘦腰腹、手臂紧致、提臀。
+现有运动：星期一 5-6pm 匹克球训练 + 10-11pm 匹克球；星期五 Reformer 普拉提 50 分钟；星期六、日 Hot Mat Reformer。饮食每天约 1600-1900 kcal、高蛋白。
+本周数字：体重${rec.weight ?? "未填"}kg，腰围${rec.waist ?? "未填"}cm，臀围${rec.hip ?? "未填"}cm，高腰围（肚脐上方最细处）${rec.hwaist ?? "未填"}cm。
+以前的记录：
+${hist}
+要求：只描述照片里看得到的体态和线条（如腰腹、手臂、臀部、站姿），语气正面、鼓励，不评价长相，不做医疗诊断，不建议极端节食。
+运动建议要在家能做、每次 15-20 分钟、不需要器材或只用弹力带，并说明怎么和现有课程搭配、避免和匹克球日冲突。
+只回 JSON：
+{"summary":"2-3句整体观察","changes":"和以前记录比较的变化（第一次就写'这是第一次记录，下周开始对比'）","focus":[{"area":"腰腹","observation":"一句"},{"area":"手臂","observation":"一句"},{"area":"臀部","observation":"一句"}],"workouts":[{"name":"动作名","how":"3组×15次","why":"练哪里、为什么"}],"weekly":"这周哪几天做、怎么搭配现有课程","cheer":"一句鼓励"}
+workouts 给 5-6 个。
+每一个文字字段都要双语：先写中文，然后换行（\n），再写英文。例如 "name":"臀桥\nGlute bridge"。`;
+      try {
+        const a = await sample.json(prompt, { images: files, cache: false });
+        if (a && typeof a === "object" && a.summary) rec.analysis = {
+          summary: String(a.summary), changes: String(a.changes || ""), weekly: String(a.weekly || ""), cheer: String(a.cheer || ""),
+          focus: (Array.isArray(a.focus) ? a.focus : []).slice(0, 5).map(f => ({ area: String(f.area || ""), observation: String(f.observation || "") })),
+          workouts: (Array.isArray(a.workouts) ? a.workouts : []).slice(0, 8).map(w => ({ name: String(w.name || ""), how: String(w.how || ""), why: String(w.why || "") })),
+        };
+      } catch (e) {
+        $("body-status").innerHTML = `<p class="warn">数字和照片已保存，但分析没完成 Saved, but the analysis didn't finish:\n${esc(errText(e))}</p>`;
+      }
+    }
+    await col.doc("body-" + today).set(rec);
+    if (rec.analysis || !files.length) $("body-status").innerHTML = `<p class="warn">已保存 Saved ✓ ${rec.analysis ? "分析结果在下面 · See your analysis below." : ""}</p>`;
+    shots.fill(null);
+    document.querySelectorAll("[data-shot]").forEach((inp, i) => {
+      inp.closest(".pick").innerHTML = `<b>${["🧍", "🚶", "🔙"][i]}</b><span>${SHOT_NAMES[i]}</span><input type="file" id="${inp.id}" accept="image/*" data-shot="${i}">`;
+    });
+  } catch (e) {
+    $("body-status").innerHTML = `<p class="warn">没有保存成功，请再试一次。Not saved; please try again.</p>`;
+  }
+  btn.disabled = false;
+}
+
+let pendingDel = null;
+document.addEventListener("click", async e => {
+  const t = e.target;
+  if (t.id === "log-prev") { logDate = shiftDate(logDate, -1); renderLog(); return; }
+  if (t.id === "log-next") { logDate = shiftDate(logDate, 1); renderLog(); return; }
+  if (t.id === "meal-go") { analyzeMeal(); return; }
+  if (t.id === "meal-save") { saveMeal(); return; }
+  if (t.id === "meal-cancel") { mealDraft = null; $("meal-result").innerHTML = ""; return; }
+  if (t.id === "sum-go") { runSummary(); return; }
+  if (t.id === "body-go") { saveBody(); return; }
+  const pl = t.closest("[data-plan]");
+  if (pl) { logPlan(logDate, +pl.dataset.plan); return; }
+  const del = t.closest("[data-del],[data-delbody]");
+  if (del) {
+    const id = del.dataset.del || del.dataset.delbody;
+    if (pendingDel !== id) { pendingDel = id; del.textContent = "确定删除？再按一次 · Tap again to delete"; del.classList.add("sure"); return; }
+    pendingDel = null;
+    try { await col.doc(id).delete(); } catch (err) {}
+  }
+});
+document.addEventListener("change", async e => {
+  const t = e.target;
+  if (t.id === "meal-file" && t.files?.[0]) {
+    mealFile = t.files[0]; mealDraft = null;
+    const url = await thumb(mealFile, 600, 0.8).catch(() => null);
+    $("meal-pick").querySelector("b, img").outerHTML = url ? `<img src="${url}" alt="这一餐">` : `<b>✅</b>`;
+    $("meal-pick").querySelector("span").textContent = "换一张 · Change photo";
+    $("meal-result").innerHTML = "";
+  }
+  if (t.dataset?.shot != null && t.files?.[0]) {
+    const i = +t.dataset.shot; shots[i] = t.files[0];
+    const url = await thumb(shots[i], 400, 0.8).catch(() => null);
+    const b = t.closest(".pick").querySelector("b, img");
+    if (url && b) b.outerHTML = `<img src="${url}" alt="${SHOT_NAMES[i]}">`;
+  }
+});
+
+document.addEventListener("click", e => {
+  const day = e.target.closest("[data-i]");
+  if (day) { cur = +day.dataset.i; store.set("lastDay", cur); open = {}; renderMenu(); return; }
+  const o = e.target.closest("[data-open]");
+  if (o) { const id = o.dataset.open; open[id] = !open[id]; renderMeals(); return; }
+  const a = e.target.closest("[data-ate]");
+  if (a) { toggleAte(cur, +a.dataset.ate); return; }
+  const t = e.target.closest("[data-view]");
+  if (t) { show(t.dataset.view); return; }
+});
+document.addEventListener("change", e => {
+  const s = e.target.closest("[data-shop]");
+  if (s) { const c = store.get("shop-" + weekId(), {}); c[s.dataset.shop] = s.checked; store.set("shop-" + weekId(), c); }
+});
+
+/* ----- records kept on this phone (IndexedDB) ----- */
+const IDB = {
+  db: null,
+  open() {
+    return new Promise((res, rej) => {
+      const r = indexedDB.open("lean-app", 1);
+      r.onupgradeneeded = () => r.result.createObjectStore("rec", { keyPath: "id" });
+      r.onsuccess = () => res(this.db = r.result);
+      r.onerror = () => rej(r.error);
+    });
+  },
+  all() {
+    return new Promise((res, rej) => {
+      const q = this.db.transaction("rec").objectStore("rec").getAll();
+      q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error);
+    });
+  },
+  put(o) {
+    return new Promise((res, rej) => {
+      const t = this.db.transaction("rec", "readwrite"); t.objectStore("rec").put(o);
+      t.oncomplete = () => res(); t.onerror = () => rej(t.error);
+    });
+  },
+  del(id) {
+    return new Promise((res, rej) => {
+      const t = this.db.transaction("rec", "readwrite"); t.objectStore("rec").delete(id);
+      t.oncomplete = () => res(); t.onerror = () => rej(t.error);
+    });
+  },
+};
+async function reloadAll() {
+  const all = await IDB.all();
+  meals = all.filter(r => r.kind === "meal");
+  bodies = all.filter(r => r.kind === "body").sort((a, b) => a.date < b.date ? 1 : -1);
+  summaries = all.filter(r => r.kind === "summary");
+  rerender();
+}
+col = {
+  doc(id) {
+    return {
+      id,
+      set: async o => { await IDB.put({ ...o, id }); await reloadAll(); },
+      delete: async () => { await IDB.del(id); await reloadAll(); },
+    };
+  },
+};
+async function initCloud() {
+  try {
+    await IDB.open(); cloudOn = true; await reloadAll();
+    try { navigator.storage?.persist?.(); } catch (e) {}
+  } catch (e) { $("log-off").hidden = false; $("body-off").hidden = false; }
+  fillFoodPicker();
+}
+
+/* ----- food picker (no AI needed) ----- */
+// [key, 中文, English, kcal, protein, unit, per] — per = grams the numbers refer to (100) or 1 for a serving/cup
+const EXTRA = [
+  ["rice", "白饭", "White rice (cooked)", 130, 2.7, "g", 100, "主食 Staples"],
+  ["brown", "糙米饭", "Brown rice (cooked)", 112, 2.6, "g", 100, "主食 Staples"],
+  ["noodle", "面条（熟）", "Noodles (cooked)", 138, 4.5, "g", 100, "主食 Staples"],
+  ["bihun", "米粉（熟）", "Bihun (cooked)", 109, 1.8, "g", 100, "主食 Staples"],
+  ["bread", "白面包", "White bread", 265, 9, "g", 100, "主食 Staples"],
+  ["wbread", "全麦面包", "Wholemeal bread", 247, 13, "g", 100, "主食 Staples"],
+  ["oats", "燕麦（干）", "Oats (dry)", 389, 16.9, "g", 100, "主食 Staples"],
+  ["fish", "鱼肉（熟）", "White fish (cooked)", 105, 22, "g", 100, "肉类 Protein"],
+  ["salmon", "三文鱼", "Salmon", 208, 20, "g", 100, "肉类 Protein"],
+  ["pork", "瘦猪肉（熟）", "Lean pork (cooked)", 143, 26, "g", 100, "肉类 Protein"],
+  ["beef", "瘦牛肉（熟）", "Lean beef (cooked)", 170, 26, "g", 100, "肉类 Protein"],
+  ["thigh", "鸡腿肉（去皮，熟）", "Chicken thigh, skinless (cooked)", 179, 24, "g", 100, "肉类 Protein"],
+  ["soy", "无糖豆浆", "Unsweetened soy milk", 33, 2.9, "g", 100, "肉类 Protein"],
+  ["greens", "炒青菜", "Stir-fried greens", 60, 2.5, "g", 100, "蔬果 Veg & fruit"],
+  ["salad", "生菜沙拉（无酱）", "Plain salad", 15, 1.2, "g", 100, "蔬果 Veg & fruit"],
+  ["banana", "香蕉", "Banana", 89, 1.1, "g", 100, "蔬果 Veg & fruit"],
+  ["apple", "苹果", "Apple", 52, 0.3, "g", 100, "蔬果 Veg & fruit"],
+  ["papaya", "木瓜", "Papaya", 43, 0.5, "g", 100, "蔬果 Veg & fruit"],
+  ["melon", "西瓜", "Watermelon", 30, 0.6, "g", 100, "蔬果 Veg & fruit"],
+  ["kopio", "黑咖啡 Kopi O kosong", "Black coffee", 5, 0.3, "杯 cup", 1, "饮料 Drinks"],
+  ["kopi", "咖啡加炼奶 Kopi", "Kopi with condensed milk", 120, 2, "杯 cup", 1, "饮料 Drinks"],
+  ["tehtarik", "拉茶 Teh tarik", "Teh tarik", 160, 3, "杯 cup", 1, "饮料 Drinks"],
+  ["milo", "美禄 Milo", "Milo", 190, 5, "杯 cup", 1, "饮料 Drinks"],
+  ["milk", "低脂牛奶 250ml", "Low-fat milk 250ml", 105, 8.5, "杯 cup", 1, "饮料 Drinks"],
+  ["nasilemak", "椰浆饭 Nasi lemak", "Nasi lemak", 640, 16, "份 plate", 1, "外食一份 Eating out (estimate)"],
+  ["chickenrice", "海南鸡饭", "Chicken rice", 620, 28, "份 plate", 1, "外食一份 Eating out (estimate)"],
+  ["ckt", "炒粿条", "Char kway teow", 740, 23, "份 plate", 1, "外食一份 Eating out (estimate)"],
+  ["wantan", "云吞面（干）", "Wantan mee (dry)", 410, 18, "份 plate", 1, "外食一份 Eating out (estimate)"],
+  ["roti", "印度煎饼 Roti canai（1片）", "Roti canai (1 piece)", 300, 6, "份 piece", 1, "外食一份 Eating out (estimate)"],
+  ["ecorice", "经济饭（1肉2菜）", "Economy rice (1 meat, 2 veg)", 650, 28, "份 plate", 1, "外食一份 Eating out (estimate)"],
+  ["friedrice", "炒饭", "Fried rice", 640, 18, "份 plate", 1, "外食一份 Eating out (estimate)"],
+  ["laksa", "叻沙", "Laksa", 590, 24, "份 bowl", 1, "外食一份 Eating out (estimate)"],
+  ["satay", "鸡肉沙爹（10支）", "Chicken satay (10 sticks)", 400, 34, "份 serving", 1, "外食一份 Eating out (estimate)"],
+];
+const PICK = {};
+function fillFoodPicker() {
+  const sel = $("add-food"); if (!sel || sel.options.length) return;
+  const mine = Object.keys(FOODS).map(k => [k, FOODS[k][0], EN.foods[k][0], FOODS[k][1], FOODS[k][2], "g", 100, "我的食材 My foods"]);
+  const groups = {};
+  [...mine, ...EXTRA].forEach(f => { PICK[f[0]] = f; (groups[f[7]] = groups[f[7]] || []).push(f); });
+  sel.innerHTML = Object.entries(groups).map(([g, list]) =>
+    `<optgroup label="${esc(g)}">${list.map(f => `<option value="${f[0]}">${esc(f[1])} · ${esc(f[2])}</option>`).join("")}</optgroup>`).join("");
+  syncUnit();
+}
+function syncUnit() {
+  const f = PICK[$("add-food").value]; if (!f) return;
+  const grams = f[5] === "g";
+  $("add-unit").textContent = grams ? "克数 grams" : "数量 " + f[5];
+  $("add-qty").value = grams ? 100 : 1;
+  $("add-qty").step = grams ? 10 : 0.5;
+}
+let draft = [];
+function renderDraft() {
+  const k = draft.reduce((a, i) => a + i.kcal, 0), p = draft.reduce((a, i) => a + i.protein, 0);
+  $("meal-draft").innerHTML = draft.length ? `
+    <table class="tbl"><thead><tr><th>食物 Food</th><th class="r">份量</th><th class="r">kcal</th><th class="r">蛋白质 g</th><th></th></tr></thead>
+    <tbody>${draft.map((i, n) => `<tr><td>${esc(i.name)}<small>${esc(i.en)}</small></td><td class="r">${i.qty}${i.unit === "g" ? "g" : " " + esc(i.unit.split(" ")[0])}</td>
+      <td class="r">${r0(i.kcal)}</td><td class="r p">${r1(i.protein)}</td><td class="r"><button class="x" data-rmitem="${n}" aria-label="移除">✕</button></td></tr>`).join("")}</tbody>
+    <tfoot><tr><td>合计 Total</td><td></td><td class="r">${r0(k)}</td><td class="r p">${r1(p)}</td><td></td></tr></tfoot></table>`
+    : `<p class="sub">选食物和份量，按「加进这一餐」。可以加很多样。<br>Pick a food and amount, then tap Add. Add as many as you like.</p>`;
+  $("meal-save2").disabled = !draft.length;
+}
+function addItem() {
+  const f = PICK[$("add-food").value]; const qty = parseFloat($("add-qty").value);
+  if (!f || !(qty > 0)) return;
+  draft.push({ key: f[0], name: f[1], en: f[2], qty, unit: f[5], kcal: f[3] * qty / f[6], protein: f[4] * qty / f[6] });
+  renderDraft();
+}
+async function saveManual() {
+  if (!draft.length) return;
+  $("meal-save2").disabled = true;
+  try {
+    const ts = Date.now();
+    const rec = { kind: "meal", source: "manual", date: logDate, slot: $("meal-slot").value,
+      name: draft.map(i => i.name).join(" + ").slice(0, 80),
+      items: draft.map(i => ({ name: i.name, grams: i.unit === "g" ? i.qty : null, qty: i.qty, kcal: r0(i.kcal), protein: r1(i.protein) })),
+      kcal: r0(draft.reduce((a, i) => a + i.kcal, 0)), protein: r1(draft.reduce((a, i) => a + i.protein, 0)), ts };
+    if (mealFile) rec.photo = await thumb(mealFile, 280, 0.7);
+    await col.doc("meal-" + ts).set(rec);
+    draft = []; mealFile = null; renderDraft();
+    $("meal-pick").innerHTML = `<b>📷</b><span>已记录！Saved!<br>拍下一餐 Next meal</span><input type="file" id="meal-file" accept="image/*">`;
+    $("meal-result").innerHTML = "";
+  } catch (e) { $("meal-result").innerHTML = `<p class="warn">没有保存成功，请再按一次。Not saved; tap again.</p>`; $("meal-save2").disabled = false; }
+}
+
+/* ----- daily tips (worked out from the numbers) ----- */
+function dayTips(s) {
+  if (!s.list.length) return "";
+  const t = [];
+  const diff = s.k - s.plan.target;
+  if (s.p < PROTEIN_GOAL && (s.dayOver || s.p < PROTEIN_GOAL * 0.5)) t.push([`蛋白质还差 ${r0(PROTEIN_GOAL - s.p)}g：加一勺 OM 蛋白粉（24g），或 2 颗蛋（12g），或 100g 鸡胸（23g）。`, `${r0(PROTEIN_GOAL - s.p)}g protein to go: add a scoop of OM (24g), 2 eggs (12g) or 100g chicken breast (23g).`]);
+  if (diff > 100) t.push([`热量超出 ${r0(diff)} kcal：明天少吃约 ${r0(diff / 0.86 / 10) * 10}g 番薯，或炒菜油减半。`, `${r0(diff)} kcal over: tomorrow eat about ${r0(diff / 0.86 / 10) * 10}g less sweet potato, or halve the cooking oil.`]);
+  if (s.dayOver && diff < -300) t.push([`今天吃得太少了。吃太少会掉肌肉、更容易暴食，明天按菜单吃够。`, `You ate too little today. Too little loses muscle and leads to cravings; follow the menu tomorrow.`]);
+  if (s.dayOver && s.list.length < 3) t.push([`今天只记录了 ${s.list.length} 餐，可能有漏记。`, `Only ${s.list.length} meal(s) logged; something may be missing.`]);
+  if (!t.length) t.push(s.dayOver ? [`今天热量和蛋白质都达标，做得很好！保持下去。`, `Calories and protein both on target today. Great work, keep it up!`] : [`到目前为止都很好，继续按菜单吃。`, `On track so far. Keep following the menu.`]);
+  return `<div class="ai">${t.map(([z, e]) => `${esc(z)}\n${esc(e)}`).join("\n\n")}</div>`;
+}
+
+/* ----- fixed workout plan for the body goals ----- */
+const WORKOUTS = [
+  ["臀桥", "Glute bridge", "3组×15次 · 3×15", "练臀部，提臀最有效的动作。", "The best move for lifting the glutes."],
+  ["侧卧抬腿", "Side-lying leg raise", "每边 3组×15次 · 3×15 each side", "练臀部侧面，让臀型更圆。", "Works the side of the glutes for a rounder shape."],
+  ["深蹲（可加弹力带）", "Squat (band optional)", "3组×12次 · 3×12", "臀腿一起练，消耗也大。", "Glutes and legs together, burns more energy."],
+  ["平板支撑", "Plank", "3组×30–45秒 · 3×30–45s", "收紧腰腹核心。", "Tightens the core and waist."],
+  ["死虫式", "Dead bug", "每边 3组×10次 · 3×10 each side", "练下腹，也保护腰。", "Works the lower belly and protects the back."],
+  ["俄罗斯转体", "Russian twist", "3组×20次 · 3×20", "练腰两侧线条。", "Shapes the sides of the waist."],
+  ["跪姿俯卧撑", "Knee push-up", "3组×10次 · 3×10", "练手臂后侧和胸。", "Works the back of the arms and chest."],
+  ["椅子臂屈伸", "Chair tricep dip", "3组×12次 · 3×12", "针对“蝴蝶袖”。", "Targets the back of the upper arm."],
+];
+function workoutCard() {
+  return `<h2>建议你做的运动<span class="en">Suggested exercises</span></h2>
+    <p class="sub">在家做，每次 15–20 分钟，不需要器材。<br>At home, 15–20 minutes, no equipment needed.</p>
+    ${WORKOUTS.map(w => `<div class="workout"><b>${w[0]} · ${w[1]}</b><span class="how">${w[2]}</span><span>${w[3]}\n${w[4]}</span></div>`).join("")}
+    <div class="ai">星期二：臀桥、侧卧抬腿、深蹲、平板支撑
+星期三：快走 30 分钟 + 跪姿俯卧撑、椅子臂屈伸
+星期四：臀桥、深蹲、死虫式、俄罗斯转体
+星期一、五、六、日已经有课，只做 5 分钟拉伸。
+
+Tue: glute bridge, side leg raise, squat, plank
+Wed: 30-min brisk walk + knee push-ups, chair dips
+Thu: glute bridge, squat, dead bug, Russian twist
+Mon, Fri, Sat, Sun you already have classes: just 5 minutes of stretching.</div>
+    <p class="sub">腰腹和手臂的脂肪要靠全身减脂才会变少，这些动作让线条更紧致。<br>Fat on the waist and arms comes off with overall fat loss; these moves tighten the shape underneath.</p>`;
+}
+function compareCard() {
+  const withPics = bodies.filter(b => b.photos?.length);
+  if (withPics.length < 2) return "";
+  const first = withPics[withPics.length - 1], last = withPics[0];
+  return `<h2>前后对比<span class="en">Before & now</span></h2>
+    <div class="row2"><figure style="margin:0"><img src="${esc(first.photos[0])}" alt="第一次" style="border-radius:12px;width:100%"><figcaption class="sub">${esc(first.date)} 第一次 First</figcaption></figure>
+    <figure style="margin:0"><img src="${esc(last.photos[0])}" alt="最新" style="border-radius:12px;width:100%"><figcaption class="sub">${esc(last.date)} 最新 Latest</figcaption></figure></div>`;
+}
+
+/* ----- backup ----- */
+async function exportBackup() {
+  const all = await IDB.all();
+  const blob = new Blob([JSON.stringify({ app: "lean-app", v: 1, at: new Date().toISOString(), records: all })], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = `lean-backup-${today}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+async function importBackup(file) {
+  const out = $("backup-status");
+  try {
+    const data = JSON.parse(await file.text());
+    if (data.app !== "lean-app" || !Array.isArray(data.records)) throw 0;
+    for (const r of data.records) if (r && r.id && r.kind) await IDB.put(r);
+    await reloadAll();
+    out.innerHTML = `<p class="warn">已恢复 ${data.records.length} 条记录。Restored ${data.records.length} records.</p>`;
+  } catch (e) { out.innerHTML = `<p class="warn">这个文件不是本 App 的备份。This isn't a backup from this app.</p>`; }
+}
+
+document.addEventListener("click", e => {
+  const t = e.target;
+  if (t.id === "add-item") { addItem(); return; }
+  if (t.id === "meal-save2") { saveManual(); return; }
+  if (t.id === "backup-out") { exportBackup(); return; }
+  const rm = t.closest("[data-rmitem]");
+  if (rm) { draft.splice(+rm.dataset.rmitem, 1); renderDraft(); }
+});
+document.addEventListener("change", e => {
+  if (e.target.id === "add-food") syncUnit();
+  if (e.target.id === "backup-in" && e.target.files?.[0]) importBackup(e.target.files[0]);
+});
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+
+// open the first meal of the day so recipes are visible right away
+open[WEEK[cur].key + "0"] = true;
+renderMenu();
+initCloud();
+</script>
+</body>
+</html>
