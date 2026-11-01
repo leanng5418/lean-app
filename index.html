@@ -302,6 +302,16 @@ nav.tabs {
         <label class="field" for="add-food">食物 Food<select id="add-food"></select></label>
         <label class="field" for="add-qty"><span id="add-unit">克数 grams</span><input id="add-qty" type="number" inputmode="decimal" value="100" min="0"></label>
       </div>
+      <div class="stack" id="custom-box" hidden>
+        <label class="field" for="custom-name">食物名称 Food name<input id="custom-name" placeholder="例如：mee goreng、珍珠奶茶"></label>
+        <div class="row2">
+          <label class="field" for="custom-kcal">这一份的热量 kcal<input id="custom-kcal" type="number" inputmode="decimal" min="0" placeholder="例如 450"></label>
+          <label class="field" for="custom-protein">蛋白质 Protein g（不知道可留空）<input id="custom-protein" type="number" inputmode="decimal" min="0" placeholder="例如 15"></label>
+        </div>
+        <label class="sub" for="custom-save" style="display:flex;gap:8px;align-items:center;cursor:pointer"><input type="checkbox" id="custom-save" checked style="width:20px;height:20px;accent-color:var(--leaf)">记住这个食物，下次直接选 · Remember for next time</label>
+        <p class="sub">热量可以看包装上的营养标签，或上网查。<br>Find calories on the package label or online.</p>
+        <p class="sub" id="custom-msg" style="color:var(--accent)"></p>
+      </div>
       <button class="btn ghost" id="add-item">＋ 加进这一餐 · Add</button>
       <div id="meal-draft"><p class="sub">选食物和份量，按「加进这一餐」。可以加很多样。<br>Pick a food and amount, then tap Add. Add as many as you like.</p></div>
       <button class="btn" id="meal-save2" disabled>记下这一餐 · Save meal</button>
@@ -1420,16 +1430,25 @@ const EXTRA = [
   ["satay", "鸡肉沙爹（10支）", "Chicken satay (10 sticks)", 400, 34, "份 serving", 1, "外食一份 Eating out (estimate)"],
 ];
 const PICK = {};
-function fillFoodPicker() {
-  const sel = $("add-food"); if (!sel || sel.options.length) return;
+const CUSTOM = "__custom";
+function fillFoodPicker(selectKey) {
+  const sel = $("add-food"); if (!sel) return;
   const mine = Object.keys(FOODS).map(k => [k, FOODS[k][0], EN.foods[k][0], FOODS[k][1], FOODS[k][2], "g", 100, "我的食材 My foods"]);
+  const own = store.get("customFoods", []).map((c, i) => ["own" + i, c.name, "自己加的 my own", c.kcal, c.protein, "份 serving", 1, "我自己加的 My own foods"]);
   const groups = {};
-  [...mine, ...EXTRA].forEach(f => { PICK[f[0]] = f; (groups[f[7]] = groups[f[7]] || []).push(f); });
+  [...mine, ...own, ...EXTRA].forEach(f => { PICK[f[0]] = f; (groups[f[7]] = groups[f[7]] || []).push(f); });
   sel.innerHTML = Object.entries(groups).map(([g, list]) =>
-    `<optgroup label="${esc(g)}">${list.map(f => `<option value="${f[0]}">${esc(f[1])} · ${esc(f[2])}</option>`).join("")}</optgroup>`).join("");
+    `<optgroup label="${esc(g)}">${list.map(f => `<option value="${f[0]}">${esc(f[1])} · ${esc(f[2])}</option>`).join("")}</optgroup>`).join("")
+    + `<optgroup label="找不到？ Not listed?"><option value="${CUSTOM}">✏️ 自己填写 · Type my own</option></optgroup>`;
+  if (selectKey) sel.value = selectKey;
   syncUnit();
 }
 function syncUnit() {
+  const custom = $("add-food").value === CUSTOM;
+  $("custom-box").hidden = !custom;
+  $("add-qty").closest("label").hidden = custom;
+  $("add-food").closest("label").style.gridColumn = custom ? "1 / -1" : "";
+  if (custom) { $("custom-name").focus(); return; }
   const f = PICK[$("add-food").value]; if (!f) return;
   const grams = f[5] === "g";
   $("add-unit").textContent = grams ? "克数 grams" : "数量 " + f[5];
@@ -1447,7 +1466,26 @@ function renderDraft() {
     : `<p class="sub">选食物和份量，按「加进这一餐」。可以加很多样。<br>Pick a food and amount, then tap Add. Add as many as you like.</p>`;
   $("meal-save2").disabled = !draft.length;
 }
+function addCustom() {
+  const name = $("custom-name").value.trim();
+  const kcal = parseFloat($("custom-kcal").value), protein = parseFloat($("custom-protein").value) || 0;
+  if (!name || !(kcal >= 0) || isNaN(kcal)) {
+    $("custom-msg").textContent = "请填食物名称和热量。Please enter a name and calories."; return;
+  }
+  $("custom-msg").textContent = "";
+  draft.push({ key: CUSTOM, name, en: "自己填写 my own", qty: 1, unit: "份 serving", kcal, protein });
+  let keep = null;
+  if ($("custom-save").checked) {
+    const list = store.get("customFoods", []).filter(c => c.name !== name);
+    list.push({ name, kcal, protein }); store.set("customFoods", list);
+    keep = "own" + (list.length - 1);
+  }
+  $("custom-name").value = ""; $("custom-kcal").value = ""; $("custom-protein").value = "";
+  fillFoodPicker(keep || CUSTOM);
+  renderDraft();
+}
 function addItem() {
+  if ($("add-food").value === CUSTOM) { addCustom(); return; }
   const f = PICK[$("add-food").value]; const qty = parseFloat($("add-qty").value);
   if (!f || !(qty > 0)) return;
   draft.push({ key: f[0], name: f[1], en: f[2], qty, unit: f[5], kcal: f[3] * qty / f[6], protein: f[4] * qty / f[6] });
@@ -1521,7 +1559,7 @@ function compareCard() {
 /* ----- backup ----- */
 async function exportBackup() {
   const all = await IDB.all();
-  const blob = new Blob([JSON.stringify({ app: "lean-app", v: 1, at: new Date().toISOString(), records: all })], { type: "application/json" });
+  const blob = new Blob([JSON.stringify({ app: "lean-app", v: 1, at: new Date().toISOString(), records: all, customFoods: store.get("customFoods", []) })], { type: "application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob); a.download = `lean-backup-${today}.json`;
   document.body.appendChild(a); a.click(); a.remove();
@@ -1533,6 +1571,7 @@ async function importBackup(file) {
     const data = JSON.parse(await file.text());
     if (data.app !== "lean-app" || !Array.isArray(data.records)) throw 0;
     for (const r of data.records) if (r && r.id && r.kind) await IDB.put(r);
+    if (Array.isArray(data.customFoods)) { store.set("customFoods", data.customFoods); fillFoodPicker(); }
     await reloadAll();
     out.innerHTML = `<p class="warn">已恢复 ${data.records.length} 条记录。Restored ${data.records.length} records.</p>`;
   } catch (e) { out.innerHTML = `<p class="warn">这个文件不是本 App 的备份。This isn't a backup from this app.</p>`; }
