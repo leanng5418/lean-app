@@ -90,6 +90,7 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 22px; margin: 0; 
 .badge.rest { background: color-mix(in srgb, var(--leaf) 18%, transparent); color: var(--leaf); }
 .badge.train { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent); }
 .badge.hot { background: color-mix(in srgb, #ff3d6e 18%, transparent); color: #ff3d6e; }
+.badge.gym { background: color-mix(in srgb, var(--protein) 18%, transparent); color: var(--protein); }
 .stats { display: flex; gap: 16px; flex-wrap: wrap; }
 .stat { display: grid; }
 .stat .num { font-size: 20px; font-weight: 700; }
@@ -560,29 +561,31 @@ const WEEK = [
     ],
   },
   {
-    key: "tue", day: "星期二", short: "二", type: "rest", tag: "休息日",
-    target: 1600,
-    note: "休息日 1600 kcal。肌肉在休息日修复，蛋白质照样吃够。可以散步 30 分钟。",
+    key: "tue", day: "星期二", short: "二", type: "gym", tag: "Gym 1小时",
+    target: 1750,
+    note: "Gym 1 小时，热量约 1750 kcal。健身后 30 分钟内喝一杯 OM 蛋白饮，帮肌肉修复。健身前 1–2 小时吃午餐或小点心，不要空腹练。",
     meals: [
       { slot: "早餐", time: "8:00", dish: "cornOmelette", items: [["egg", 100], ["corn", 120], ["yog", 150], ["oil", 3]] },
       { slot: "午餐", time: "12:30", dish: "sardineSoup", items: [["sard", 155], ["soup", 400], ["pot", 250], ["oil", 5]] },
+      { slot: "健身后", time: "健身后30分钟内", dish: "omShake", items: [["om", 30]], extra: true },
       { slot: "晚餐", time: "7:00pm", dish: "steamedEggTofuChicken", items: [["chk", 150], ["tofu", 150], ["egg", 50], ["sp", 250]] },
     ],
   },
   {
-    key: "wed", day: "星期三", short: "三", type: "rest", tag: "休息日",
-    target: 1600,
-    note: "休息日 1600 kcal。番薯可以一次蒸好 2–3 天的份量，放冰箱，省时间。",
+    key: "wed", day: "星期三", short: "三", type: "train", tag: "匹克球",
+    target: 1750,
+    note: "打匹克球，热量约 1750 kcal。打球前 1 小时吃一条玉米补能量，打球时多喝水。番薯可以一次蒸好 2–3 天的份量，省时间。",
     meals: [
       { slot: "早餐", time: "8:00", dish: "proteinBowl", items: [["yog", 200], ["om", 30], ["sp", 200]] },
       { slot: "午餐", time: "12:30", dish: "chickenSpBowl", items: [["chk", 150], ["sp", 300], ["egg", 50], ["oil", 8]] },
+      { slot: "球前", time: "打球前1小时", dish: "cornSteam", items: [["corn", 150]], extra: true },
       { slot: "晚餐", time: "7:00pm", dish: "prawnCornSoup", items: [["prawn", 180], ["corn", 250], ["soup", 400], ["oil", 5]] },
     ],
   },
   {
     key: "thu", day: "星期四", short: "四", type: "rest", tag: "休息日",
     target: 1600,
-    note: "休息日 1600 kcal。煎饼可以多做一份当明天的备餐。",
+    note: "一周唯一的休息日，1600 kcal。肌肉在休息时修复，蛋白质照样吃够。可以散步 30 分钟。煎饼可以多做一份当明天的备餐。",
     meals: [
       { slot: "早餐", time: "8:00", dish: "eggSpYog", items: [["egg", 100], ["sp", 180], ["yog", 150]] },
       { slot: "午餐", time: "12:30", dish: "sardinePotCake", items: [["sard", 155], ["pot", 250], ["egg", 50], ["oil", 5], ["soup", 300]] },
@@ -601,12 +604,12 @@ const WEEK = [
     ],
   },
   {
-    key: "sat", day: "星期六", short: "六", type: "hot", tag: "Hot Mat Reformer",
+    key: "sat", day: "星期六", short: "六", type: "gym", tag: "Gym 40分钟",
     target: 1750,
-    note: "热瑜伽式 Hot Mat Reformer 出汗很多，热量约 1750 kcal。课前课后各喝 500ml 水，加一小撮盐或电解质。菜单按「上午上课」安排，下午上课就把课前轻食当下午茶。",
+    note: "Gym 40 分钟，热量约 1750 kcal。健身前吃番薯和蛋，健身后喝 OM 蛋白饮。菜单按「上午健身」安排，下午去就把健身前轻食当下午茶。",
     meals: [
-      { slot: "课前早餐", time: "课前 1.5 小时", dish: "spEgg", items: [["sp", 200], ["egg", 100]] },
-      { slot: "课后", time: "课后30分钟内", dish: "omShake", items: [["om", 30], ["yog", 150]], extra: true },
+      { slot: "健身前早餐", time: "健身前 1–1.5 小时", dish: "spEgg", items: [["sp", 200], ["egg", 100]] },
+      { slot: "健身后", time: "健身后30分钟内", dish: "omShake", items: [["om", 30], ["yog", 150]], extra: true },
       { slot: "午餐", time: "1:00pm", dish: "garlicPrawnTofu", items: [["prawn", 150], ["tofu", 150], ["corn", 250], ["oil", 8]] },
       { slot: "晚餐", time: "7:00pm", dish: "chickenPotSoup", items: [["chk", 150], ["pot", 350], ["soup", 400], ["oil", 8]] },
     ],
@@ -614,7 +617,7 @@ const WEEK = [
   {
     key: "sun", day: "星期日", short: "日", type: "hot", tag: "Hot Mat Reformer",
     target: 1750,
-    note: "第二天 Hot Mat Reformer，热量约 1750 kcal。今晚顺便蒸好下周一、二的番薯，为周一双场做准备。",
+    note: "Hot Mat Reformer 出汗很多，热量约 1750 kcal。课前课后各喝 500ml 水，加一小撮盐或电解质。今晚顺便蒸好下周一、二的番薯，为周一双场做准备。",
     meals: [
       { slot: "课前早餐", time: "课前 1.5 小时", dish: "cornSteam", items: [["corn", 150], ["egg", 50]] },
       { slot: "课后", time: "课后30分钟内", dish: "proteinBowl", items: [["yog", 150], ["om", 30], ["sp", 100]], extra: true },
@@ -634,7 +637,7 @@ const EN = {
     soup: ["Tomato carrot soup", "see the Soup recipe"], oil: ["Olive oil", "1 tsp ≈ 5g"],
   },
   slots: { "早餐": "Breakfast", "午餐": "Lunch", "晚餐": "Dinner", "加餐": "Snack", "训练前": "Pre-training", "球后": "After game",
-    "课后": "After class", "课前早餐": "Pre-class breakfast" },
+    "课后": "After class", "课前早餐": "Pre-class breakfast", "健身后": "After gym", "健身前早餐": "Pre-gym breakfast", "球前": "Before pickleball" },
   dishes: {
     eggSpYog: { name: "Boiled eggs · steamed sweet potato · Greek yoghurt", time: "15 min", steps: [
       "Wash the sweet potato, keep the skin, cut into chunks and steam on high for 15 min until a chopstick slides through.",
@@ -707,12 +710,12 @@ const EN = {
   },
   days: {
     mon: { day: "Monday", tag: "2× pickleball", note: "Two pickleball sessions today (5–6pm training + 10–11pm game), so about 1,900 kcal. Corn before training for energy, OM shake after the game. Drink 2.5–3 litres of water; a pinch of salt helps." },
-    tue: { day: "Tuesday", tag: "Rest day", note: "Rest day, 1,600 kcal. Muscles repair on rest days, so keep protein high. A 30-minute walk is great." },
-    wed: { day: "Wednesday", tag: "Rest day", note: "Rest day, 1,600 kcal. Steam 2–3 days of sweet potato at once and keep it in the fridge to save time." },
-    thu: { day: "Thursday", tag: "Rest day", note: "Rest day, 1,600 kcal. Make an extra batch of potato cakes for tomorrow." },
+    tue: { day: "Tuesday", tag: "Gym 1 hr", note: "1 hour at the gym, about 1,750 kcal. Have an OM shake within 30 minutes after training to help your muscles recover. Eat lunch or a snack 1–2 hours before; don't train on an empty stomach." },
+    wed: { day: "Wednesday", tag: "Pickleball", note: "Pickleball day, about 1,750 kcal. Eat a corn cob 1 hour before playing for energy and drink plenty of water. Steam 2–3 days of sweet potato at once to save time." },
+    thu: { day: "Thursday", tag: "Rest day", note: "Your one rest day, 1,600 kcal. Muscles repair while you rest, so keep protein high. A 30-minute walk is great. Make extra potato cakes for tomorrow." },
     fri: { day: "Friday", tag: "Reformer 50 min", note: "Reformer Pilates 50 min, about 1,700 kcal. Have an OM yoghurt cup after class. Don't eat a big meal in the 1.5 hours before class." },
-    sat: { day: "Saturday", tag: "Hot Mat Reformer", note: "Hot Mat Reformer makes you sweat a lot: about 1,750 kcal. Drink 500ml water before and after, with a pinch of salt or electrolytes. Planned for a morning class; if yours is in the afternoon, have the light pre-class meal as an afternoon snack." },
-    sun: { day: "Sunday", tag: "Hot Mat Reformer", note: "Second Hot Mat Reformer day, about 1,750 kcal. Tonight, steam sweet potatoes for Monday and Tuesday to get ready for double pickleball." },
+    sat: { day: "Saturday", tag: "Gym 40 min", note: "40 minutes at the gym, about 1,750 kcal. Sweet potato and eggs before, an OM shake after. Planned for a morning session; if you go in the afternoon, have the pre-gym meal as an afternoon snack." },
+    sun: { day: "Sunday", tag: "Hot Mat Reformer", note: "Hot Mat Reformer makes you sweat a lot: about 1,750 kcal. Drink 500ml water before and after, with a pinch of salt or electrolytes. Tonight, steam sweet potatoes for Monday and Tuesday to get ready for double pickleball." },
   },
 };
 const enSlot = s => EN.slots[s] || "";
@@ -776,7 +779,7 @@ function photo(dish, slot, extra, kcal) {
 
 function renderDays() {
   document.getElementById("days").innerHTML = WEEK.map((d, i) => {
-    const icon = d.type === "rest" ? "🌿" : d.type === "hot" ? "🔥" : "🏓";
+    const icon = d.type === "rest" ? "🌿" : d.type === "hot" ? "🔥" : d.type === "gym" ? "🏋️" : "🏓";
     const ic = d.key === "fri" ? "🧘" : icon;
     return `<button class="day${i === cur ? " on" : ""}${i === todayIdx ? " today" : ""}" role="tab" aria-selected="${i === cur}" data-i="${i}" id="day-${d.key}"><b>${d.short}</b><small>${EN.days[d.key].day.slice(0, 3)}</small><i>${ic}</i></button>`;
   }).join("");
@@ -799,7 +802,7 @@ function renderSummary() {
     </div>
     <div class="sum-info">
       <h2>${d.day} <span class="en-i">${EN.days[d.key].day}</span></h2>
-      <span class="badge ${d.type}">${d.type === "rest" ? "🌿" : d.type === "hot" ? "🔥" : d.key === "fri" ? "🧘" : "🏓"} ${d.tag}${d.tag !== EN.days[d.key].tag ? " · " + EN.days[d.key].tag : ""}</span>
+      <span class="badge ${d.type}">${d.type === "rest" ? "🌿" : d.type === "hot" ? "🔥" : d.type === "gym" ? "🏋️" : d.key === "fri" ? "🧘" : "🏓"} ${d.tag}${d.tag !== EN.days[d.key].tag ? " · " + EN.days[d.key].tag : ""}</span>
       <div class="stats">
         <div class="stat"><span class="num">${r0(t.k)}</span><small>全天 Day kcal</small></div>
         <div class="stat"><span class="num p">${r0(t.p)}g</span><small>蛋白质 Protein</small></div>
@@ -892,9 +895,10 @@ function renderGuide() {
     ["分装成 400g 一盒冷藏（4 天）或冷冻（1 个月）。", "Pack into 400g boxes: fridge 4 days, freezer 1 month."],
   ];
   const tips = [
-    ["<b>休息日（二、三、四）</b>：1600 kcal，减脂的基础。", "Rest days (Tue–Thu): 1,600 kcal, your fat-loss base."],
+    ["<b>星期四休息日</b>：1600 kcal，减脂的基础。", "Thursday rest day: 1,600 kcal, your fat-loss base."],
+    ["<b>星期二、六 Gym · 星期三匹克球</b>：约 1750 kcal，多一份运动前后的能量和蛋白质。", "Tue & Sat gym, Wed pickleball: about 1,750 kcal, with extra fuel and protein around training."],
     ["<b>星期五 Reformer</b>：约 1700 kcal，多一份课后蛋白。", "Friday Reformer: about 1,700 kcal, with an extra protein snack after class."],
-    ["<b>周末 Hot Mat Reformer</b>：约 1750 kcal，热课出汗多，多补水和盐。", "Weekend Hot Mat Reformer: about 1,750 kcal; drink extra water and salt."],
+    ["<b>星期日 Hot Mat Reformer</b>：约 1750 kcal，热课出汗多，多补水和盐。", "Sunday Hot Mat Reformer: about 1,750 kcal; drink extra water and salt."],
     ["<b>星期一双场匹克球</b>：约 1900 kcal，加训练前玉米和球后蛋白饮。", "Monday double pickleball: about 1,900 kcal, with corn before and a shake after."],
     ["蛋白质每天约 125–155g，帮你减脂时保住肌肉。", "About 125–155g protein a day keeps your muscle while you lose fat."],
     ["OM 蛋白粉按每勺 30g ≈ 120 kcal / 24g 蛋白质计算，请对照你那罐的包装标签。", "OM protein is counted as 30g scoop ≈ 120 kcal / 24g protein; check your tub's label."],
@@ -1533,17 +1537,17 @@ const WORKOUTS = [
 ];
 function workoutCard() {
   return `<h2>建议你做的运动<span class="en">Suggested exercises</span></h2>
-    <p class="sub">在家做，每次 15–20 分钟，不需要器材。<br>At home, 15–20 minutes, no equipment needed.</p>
+    <p class="sub">星期二、六去 gym 时加进去做；星期四在家做几个也可以。<br>Add these to your Tuesday and Saturday gym sessions; a few at home on Thursday is fine too.</p>
     ${WORKOUTS.map(w => `<div class="workout"><b>${w[0]} · ${w[1]}</b><span class="how">${w[2]}</span><span>${w[3]}\n${w[4]}</span></div>`).join("")}
-    <div class="ai">星期二：臀桥、侧卧抬腿、深蹲、平板支撑
-星期三：快走 30 分钟 + 跪姿俯卧撑、椅子臂屈伸
-星期四：臀桥、深蹲、死虫式、俄罗斯转体
-星期一、五、六、日已经有课，只做 5 分钟拉伸。
+    <div class="ai">星期二 Gym 1 小时（臀 + 手臂）：臀桥（可用杠铃做 hip thrust）、深蹲、侧卧抬腿、跪姿俯卧撑、臂屈伸
+星期六 Gym 40 分钟（臀 + 腰腹）：臀桥、深蹲、平板支撑、死虫式、俄罗斯转体
+星期四休息日：散步 30 分钟，想动就做 10 分钟平板支撑和死虫式
+星期一、三匹克球，星期五 Reformer，星期日 Hot Mat：只做 5 分钟拉伸
 
-Tue: glute bridge, side leg raise, squat, plank
-Wed: 30-min brisk walk + knee push-ups, chair dips
-Thu: glute bridge, squat, dead bug, Russian twist
-Mon, Fri, Sat, Sun you already have classes: just 5 minutes of stretching.</div>
+Tue gym 1 hr (glutes + arms): glute bridge (or barbell hip thrust), squat, side leg raise, knee push-ups, dips
+Sat gym 40 min (glutes + core): glute bridge, squat, plank, dead bug, Russian twist
+Thu rest day: 30-min walk; 10 minutes of plank and dead bug if you feel like moving
+Mon & Wed pickleball, Fri Reformer, Sun Hot Mat: just 5 minutes of stretching</div>
     <p class="sub">腰腹和手臂的脂肪要靠全身减脂才会变少，这些动作让线条更紧致。<br>Fat on the waist and arms comes off with overall fat loss; these moves tighten the shape underneath.</p>`;
 }
 function compareCard() {
